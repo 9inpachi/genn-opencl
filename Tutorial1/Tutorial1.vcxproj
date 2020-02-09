@@ -159,11 +159,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="init.cc" />
+    <ClCompile Include="neuronUpdate.cc" />
     <ClCompile Include="runner.cc" />
+    <ClCompile Include="simulator.cc" />
     <ClCompile Include="Tutorial1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="init.cl" />
+    <None Include="updateNeuronsKernels.cl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="definitions.h" />

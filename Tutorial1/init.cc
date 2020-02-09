@@ -1,5 +1,5 @@
 #include <OpenCLModule.h>
-#include "definitionsInternal.h"
+#include "definitions.h"
 
 void initialize() {
     unsigned long deviceRNGSeed = 0;
@@ -13,6 +13,11 @@ void initialize() {
 		cl::Buffer b_UNeurons(oclProgram.context, dd_UNeurons.begin(), dd_UNeurons.end(), false);
 
 		cl::Kernel initKernel(oclProgram.program, "initializeKernel");
+		initKernel.setArg(0, deviceRNGSeed);
+		initKernel.setArg(1, b_glbSpkCntNeurons);
+		initKernel.setArg(2, b_glbSpkNeurons);
+		initKernel.setArg(3, b_VNeurons);
+		initKernel.setArg(4, b_UNeurons);
 
 		cl::CommandQueue initQueue(oclProgram.context, oclProgram.device);
 		initQueue.enqueueNDRangeKernel(initKernel, cl::NullRange, cl::NDRange(32));
@@ -24,10 +29,4 @@ void initialize() {
 		initQueue.enqueueReadBuffer(b_UNeurons, CL_TRUE, 0, sizeof(scalar) * dd_UNeurons.size(), dd_UNeurons.data());
 
     }
-}
-
-void initializeSparse() {
-    copyStateToDevice(true);
-    copyConnectivityToDevice(true);
-    
 }

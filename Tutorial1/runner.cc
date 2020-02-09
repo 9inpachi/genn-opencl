@@ -1,17 +1,11 @@
-#include "definitionsInternal.h"
-
-extern "C" {
-	unsigned long long iT;
-	float t;
-
-	unsigned int* dd_glbSpkNeurons;
-	unsigned int* dd_glbSpkCntNeurons;
-
-	scalar* aNeurons;
-}
+#include "definitions.h"
 
 void stepTime() {
 	updateNeurons(t);
 	iT++;
 	t = iT * DT;
+}
+
+std::vector<scalar> getCurrentVNeurons() {
+	return dd_VNeurons;
 }

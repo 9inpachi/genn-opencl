@@ -24,9 +24,16 @@
     <ClCompile Include="runner.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="neuronUpdate.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simulator.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="init.cl" />
+    <None Include="updateNeuronsKernels.cl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="definitionsInternal.h">
