@@ -2,6 +2,7 @@
 #include <fstream>
 
 int main() {
+	allocateMem();
 	initialize();
 
 	dd_aNeurons[0] = 0.02;	dd_bNeurons[0] = 0.2;	dd_cNeurons[0] = -65.0;		dd_dNeurons[0] = 8.0;
@@ -17,7 +18,7 @@ int main() {
 	while (t < 500.0f) {
 		stepTime();
 
-		std::vector<scalar> currVNeurons = getCurrentVNeurons();
+		scalar* currVNeurons = getCurrentVNeurons();
 
 		stream << t << "," << currVNeurons[0] << "," << currVNeurons[1] << "," << currVNeurons[2] << "," << currVNeurons[3] << "," << currVNeurons[4] << "," << currVNeurons[5] << "," << currVNeurons[6] << std::endl;
 	}

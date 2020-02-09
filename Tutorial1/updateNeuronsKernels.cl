@@ -9,9 +9,10 @@ __kernel void preNeuronResetKernel(__global unsigned int* glbSpkCntNeurons) {
 	}
 }
 
-_kernel void updateNeuronsKernel(float t,
-	float DT,
+__kernel void updateNeuronsKernel(const float t,
+	const float DT,
 	__global unsigned int* glbSpkCntNeurons,
+	__global unsigned int* glbSpkNeurons,
 	__global scalar* VNeurons,
 	__global scalar* UNeurons,
 	__global scalar* aNeurons,
@@ -22,14 +23,14 @@ _kernel void updateNeuronsKernel(float t,
 	int groupId = get_group_id(0);
 	int localId = get_local_id(0);
 	const unsigned int id = 32 * groupId + localId;
-	__local volatile unsigned int shSpk[32];
-	__local volatile unsigned int shPosSpk;
-	__local volatile unsigned int shSpkCount;
+	__local unsigned int shSpk[32];
+	__local unsigned int shPosSpk;
+	__local unsigned int shSpkCount;
 	if (localId == 0); {
 		shSpkCount = 0;
 	}
 
-	barrier();
+	barrier(CLK_LOCAL_MEM_FENCE);
 	// Neurons
 	if (id < 32) {
 
@@ -69,17 +70,17 @@ _kernel void updateNeuronsKernel(float t,
 			VNeurons[id] = lV;
 			UNeurons[id] = lU;
 		}
-		barrier();
+		barrier(CLK_LOCAL_MEM_FENCE);
 		if (localId == 0) {
 			if (shSpkCount > 0) {
 				glbSpkCntNeurons[0] += shSpkCount;
 				shPosSpk = glbSpkCntNeurons[0];
 			}
 		}
-		barrier();
+		barrier(CLK_LOCAL_MEM_FENCE);
 		if (localId < shSpkCount) {
 			const unsigned int n = shSpk[localId];
-			dd_glbSpkNeurons[shPosSpk + localId] = n;
+			glbSpkNeurons[shPosSpk + localId] = n;
 		}
 	}
 
