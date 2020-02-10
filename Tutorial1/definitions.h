@@ -7,7 +7,6 @@
 #define EXPORT_VAR extern
 #define EXPORT_FUNC
 
-
 typedef float scalar;
 
 #define DT 0.100000f
