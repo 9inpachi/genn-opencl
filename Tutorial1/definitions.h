@@ -1,14 +1,12 @@
 #pragma once
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #include <CL/cl.hpp>
+#include <cassert>
 #include <fstream>
-#ifdef BUILDING_GENERATED_CODE
-#define EXPORT_VAR __declspec(dllexport) extern
-#define EXPORT_FUNC __declspec(dllexport)
-#else
-#define EXPORT_VAR __declspec(dllimport) extern
-#define EXPORT_FUNC __declspec(dllimport)
-#endif
+
+#define EXPORT_VAR extern
+#define EXPORT_FUNC
+
 
 typedef float scalar;
 
@@ -61,7 +59,7 @@ namespace OpenCLModule {
 			std::vector<cl::Platform> platforms;
 			cl::Platform::get(&platforms); // Gets all the platforms
 
-			_ASSERT(platforms.size() > 0);
+			assert(platforms.size() > 0);
 
 			// Getting all devices and putting them into a single vector
 			for (int i = 0; i < platforms.size(); i++) {
@@ -70,11 +68,11 @@ namespace OpenCLModule {
 				devices.insert(devices.end(), platformDevices.begin(), platformDevices.end());
 			}
 
-			_ASSERT(devices.size() > 0);
+			assert(devices.size() > 0);
 
 			// Check if the device exists at the given index
 			if (deviceIndex >= devices.size()) {
-				_ASSERT(deviceIndex >= devices.size());
+				assert(deviceIndex >= devices.size());
 				device = devices.front();
 			}
 			else {
