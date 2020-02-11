@@ -41,6 +41,7 @@ extern "C" {
 // Allocating memory to pointers
 void allocateMem() {
 
+	// Allocating memory to host pointers
 	dd_glbSpkCntNeurons = (unsigned int*)malloc(1 * sizeof(unsigned int));
 	dd_glbSpkNeurons = (unsigned int*)malloc(NSIZE * sizeof(unsigned int));
 	dd_VNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
@@ -50,9 +51,21 @@ void allocateMem() {
 	dd_cNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
 	dd_dNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
 
-	//Buffers
-	//init
-	//updateNeuron
+	// Buffers
+	// initializeKernel buffers
+	b_init_glbSpkCntNeurons = cl::Buffer(initContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, 1 * sizeof(dd_glbSpkCntNeurons), dd_glbSpkCntNeurons);
+	b_init_glbSpkNeurons = cl::Buffer(initContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_glbSpkNeurons), dd_glbSpkNeurons);
+	b_init_VNeurons = cl::Buffer(initContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(scalar), dd_VNeurons);
+	b_init_UNeurons = cl::Buffer(initContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(scalar), dd_UNeurons);
+	// updateNeuronsKernels buffers
+	b_glbSpkCntNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, 1 * sizeof(dd_glbSpkCntNeurons), dd_glbSpkCntNeurons);
+	b_glbSpkNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_glbSpkNeurons), dd_glbSpkNeurons);
+	b_VNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_VNeurons), dd_VNeurons);
+	b_UNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_UNeurons), dd_UNeurons);
+	b_aNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_aNeurons), dd_aNeurons);
+	b_bNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_bNeurons), dd_bNeurons);
+	b_cNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_cNeurons), dd_cNeurons);
+	b_dNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_dNeurons), dd_dNeurons);
 }
 
 // Initializing kernel programs so that they can be used to run the kernels

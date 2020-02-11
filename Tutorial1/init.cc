@@ -5,12 +5,6 @@ void initialize() {
 
 	cl_int err = CL_SUCCESS;
 
-	// Buffers for initKernel
-	b_init_glbSpkCntNeurons = cl::Buffer(initContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, 1 * sizeof(unsigned int), dd_glbSpkCntNeurons);
-	b_init_glbSpkNeurons = cl::Buffer(initContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(unsigned int), dd_glbSpkNeurons);
-	b_init_VNeurons = cl::Buffer(initContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(scalar), dd_VNeurons);
-	b_init_UNeurons = cl::Buffer(initContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(scalar), dd_UNeurons);
-
 	// initKernel to initialize values
 	cl::Kernel initKernel(initProgram, "initializeKernel", &err);
 	// Setting kernel arguments

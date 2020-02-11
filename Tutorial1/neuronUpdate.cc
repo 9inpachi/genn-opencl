@@ -5,16 +5,6 @@ void updateNeurons(float t) {
 	// preNeuronResetKernel and updateNeuronsKernel
 	cl_int err = CL_SUCCESS;
 
-	// Buffers for updateNeuronsKernels
-	b_glbSpkCntNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, 1 * sizeof(unsigned int), dd_glbSpkCntNeurons);
-	b_glbSpkNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(unsigned int), dd_glbSpkNeurons);
-	b_VNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(scalar), dd_VNeurons);
-	b_UNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(scalar), dd_UNeurons);
-	b_aNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(scalar), dd_aNeurons);
-	b_bNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(scalar), dd_bNeurons);
-	b_cNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(scalar), dd_cNeurons);
-	b_dNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(scalar), dd_dNeurons);
-
 	// preNeuronResetKernel
 
 	// preNeuronResetKernel to reset values
@@ -24,6 +14,7 @@ void updateNeurons(float t) {
 	// Creating a preNeuronResetQueue for running the preNeuronResetKernel
 	cl::CommandQueue preNeuronResetQueue(unContext, unDevice);
 	err = preNeuronResetQueue.enqueueNDRangeKernel(preNeuronResetKernel, cl::NullRange, cl::NDRange(32));
+	preNeuronResetQueue.finish();
 
 	std::string err_here = opencl::getCLError(err);
 
@@ -46,7 +37,6 @@ void updateNeurons(float t) {
 	// Creating an updateNeuronsQueue to run the updateNeuronsKernel
 	cl::CommandQueue updateNeuronsQueue(unContext, unDevice);
 	err = updateNeuronsQueue.enqueueNDRangeKernel(updateNeuronsKernel, cl::NullRange, cl::NDRange(32));
-
 	updateNeuronsQueue.finish();
 
 	// Check for any errors caught during kernel execution
