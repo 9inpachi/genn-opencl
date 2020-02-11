@@ -23,9 +23,9 @@ __kernel void updateNeuronsKernel(const float t,
 	int groupId = get_group_id(0);
 	int localId = get_local_id(0);
 	const unsigned int id = 32 * groupId + localId;
-	__local unsigned int shSpk[32];
-	__local unsigned int shPosSpk;
-	__local unsigned int shSpkCount;
+	volatile __local unsigned int shSpk[32];
+	volatile __local unsigned int shPosSpk;
+	volatile __local unsigned int shSpkCount;
 	if (localId == 0); {
 		shSpkCount = 0;
 	}
@@ -64,7 +64,7 @@ __kernel void updateNeuronsKernel(const float t,
 
 			// test for and register a true spike
 			if ((lV >= 29.99f) && !(oldSpike)) {
-				const unsigned int spkIdx = ++shSpkCount;
+				const unsigned int spkIdx = atomic_add(&shSpkCount, 1);
 				shSpk[spkIdx] = id;
 			}
 			VNeurons[id] = lV;
@@ -73,8 +73,7 @@ __kernel void updateNeuronsKernel(const float t,
 		barrier(CLK_LOCAL_MEM_FENCE);
 		if (localId == 0) {
 			if (shSpkCount > 0) {
-				glbSpkCntNeurons[0] += shSpkCount;
-				shPosSpk = glbSpkCntNeurons[0];
+				shPosSpk = atomic_add(&glbSpkCntNeurons[0], shSpkCount);
 			}
 		}
 		barrier(CLK_LOCAL_MEM_FENCE);

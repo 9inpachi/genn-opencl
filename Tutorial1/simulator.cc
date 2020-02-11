@@ -3,6 +3,7 @@
 
 int main() {
 	allocateMem();
+	initKernelPrograms();
 	initialize();
 
 	dd_aNeurons[0] = 0.02f;	dd_bNeurons[0] = 0.2f;	dd_cNeurons[0] = -65.0f;		dd_dNeurons[0] = 8.0f;
@@ -17,6 +18,7 @@ int main() {
 	std::ofstream stream("spikes.csv");
 	while (t < 500.0f) {
 		stepTime();
+		pullCurrentVNeuronsFromDevice();
 
 		scalar* currVNeurons = getCurrentVNeurons();
 
