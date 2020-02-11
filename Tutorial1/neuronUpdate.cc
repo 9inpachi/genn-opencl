@@ -12,7 +12,7 @@ void updateNeurons(float t) {
 	err = preNeuronResetKernel.setArg(0, b_glbSpkCntNeurons);
 
 	// Creating a preNeuronResetQueue for running the preNeuronResetKernel
-	cl::CommandQueue preNeuronResetQueue(unContext, unDevice);
+	cl::CommandQueue preNeuronResetQueue(clContext, clDevice);
 	err = preNeuronResetQueue.enqueueNDRangeKernel(preNeuronResetKernel, cl::NullRange, cl::NDRange(32));
 	preNeuronResetQueue.finish();
 
@@ -35,7 +35,7 @@ void updateNeurons(float t) {
 	err = updateNeuronsKernel.setArg(9, b_dNeurons);
 
 	// Creating an updateNeuronsQueue to run the updateNeuronsKernel
-	cl::CommandQueue updateNeuronsQueue(unContext, unDevice);
+	cl::CommandQueue updateNeuronsQueue(clContext, clDevice);
 	err = updateNeuronsQueue.enqueueNDRangeKernel(updateNeuronsKernel, cl::NullRange, cl::NDRange(32));
 	updateNeuronsQueue.finish();
 

@@ -13,12 +13,6 @@ extern "C" {
 	float t;
 
 	// Buffers
-	// initializeKernel buffers
-	cl::Buffer b_init_glbSpkCntNeurons;
-	cl::Buffer b_init_glbSpkNeurons;
-	cl::Buffer b_init_VNeurons;
-	cl::Buffer b_init_UNeurons;
-	// updateNeuronsKernels buffers
 	cl::Buffer b_glbSpkCntNeurons;
 	cl::Buffer b_glbSpkNeurons;
 	cl::Buffer b_VNeurons;
@@ -29,13 +23,10 @@ extern "C" {
 	cl::Buffer b_dNeurons;
 
 	// OpenCL variables
+	cl::Context clContext;
+	cl::Device clDevice;
 	cl::Program initProgram;
-	cl::Context initContext;
-	cl::Device initDevice;
-
 	cl::Program unProgram;
-	cl::Context unContext;
-	cl::Device unDevice;
 }
 
 // Allocating memory to pointers
@@ -52,26 +43,21 @@ void allocateMem() {
 	dd_dNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
 
 	// Buffers
-	// initializeKernel buffers
-	b_init_glbSpkCntNeurons = cl::Buffer(initContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, 1 * sizeof(dd_glbSpkCntNeurons), dd_glbSpkCntNeurons);
-	b_init_glbSpkNeurons = cl::Buffer(initContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_glbSpkNeurons), dd_glbSpkNeurons);
-	b_init_VNeurons = cl::Buffer(initContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(scalar), dd_VNeurons);
-	b_init_UNeurons = cl::Buffer(initContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(scalar), dd_UNeurons);
-	// updateNeuronsKernels buffers
-	b_glbSpkCntNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, 1 * sizeof(dd_glbSpkCntNeurons), dd_glbSpkCntNeurons);
-	b_glbSpkNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_glbSpkNeurons), dd_glbSpkNeurons);
-	b_VNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_VNeurons), dd_VNeurons);
-	b_UNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_UNeurons), dd_UNeurons);
-	b_aNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_aNeurons), dd_aNeurons);
-	b_bNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_bNeurons), dd_bNeurons);
-	b_cNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_cNeurons), dd_cNeurons);
-	b_dNeurons = cl::Buffer(unContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_dNeurons), dd_dNeurons);
+	b_glbSpkCntNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, 1 * sizeof(dd_glbSpkCntNeurons), dd_glbSpkCntNeurons);
+	b_glbSpkNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_glbSpkNeurons), dd_glbSpkNeurons);
+	b_VNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_VNeurons), dd_VNeurons);
+	b_UNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_UNeurons), dd_UNeurons);
+	b_aNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_aNeurons), dd_aNeurons);
+	b_bNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_bNeurons), dd_bNeurons);
+	b_cNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_cNeurons), dd_cNeurons);
+	b_dNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_dNeurons), dd_dNeurons);
 }
 
 // Initializing kernel programs so that they can be used to run the kernels
 void initKernelPrograms() {
-	opencl::createProgram("init.cl", initProgram, initContext, initDevice, 1);
-	opencl::createProgram("updateNeuronsKernels.cl", unProgram, unContext, unDevice, 1);
+	opencl::setUpContext(clContext, clDevice, 1);
+	opencl::createProgram("init.cl", initProgram, clContext);
+	opencl::createProgram("updateNeuronsKernels.cl", unProgram, clContext);
 }
 
 void stepTime() {
@@ -90,11 +76,11 @@ void pullCurrentVNeuronsFromDevice() {
 
 
 /*
-OpenCL function implementations
+* OpenCL function implementations
 */
 
-// Create OpenCL program with the specified device
-void opencl::createProgram(const std::string& filename, cl::Program& program, cl::Context& context, cl::Device& device, const int deviceIndex) {
+// Initialize context with the given device
+void opencl::setUpContext(cl::Context& context, cl::Device& device, const int deviceIndex) {
 
 	// Getting all platforms to gather devices from
 	std::vector<cl::Platform> platforms;
@@ -121,16 +107,18 @@ void opencl::createProgram(const std::string& filename, cl::Program& program, cl
 		device = devices[deviceIndex]; // We will perform our operations using this device
 	}
 
+	context = cl::Context(device);
+
+}
+
+// Create OpenCL program with the specified device
+void opencl::createProgram(const std::string& filename, cl::Program& program, cl::Context& context) {
+
 	// Reading the kernel file for execution
 	std::ifstream kernelFile(filename);
 	std::string srcString(std::istreambuf_iterator<char>(kernelFile), (std::istreambuf_iterator<char>()));
-
-
 	cl::Program::Sources programSources(1, std::make_pair(srcString.c_str(), srcString.length() + 1));
-
-	context = cl::Context(device);
 	program = cl::Program(context, programSources);
-
 	program.build("-cl-std=CL1.2");
 
 }

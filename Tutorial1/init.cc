@@ -9,13 +9,13 @@ void initialize() {
 	cl::Kernel initKernel(initProgram, "initializeKernel", &err);
 	// Setting kernel arguments
 	err = initKernel.setArg(0, deviceRNGSeed);
-	err = initKernel.setArg(1, b_init_glbSpkCntNeurons);
-	err = initKernel.setArg(2, b_init_glbSpkNeurons);
-	err = initKernel.setArg(3, b_init_VNeurons);
-	err = initKernel.setArg(4, b_init_UNeurons);
+	err = initKernel.setArg(1, b_glbSpkCntNeurons);
+	err = initKernel.setArg(2, b_glbSpkNeurons);
+	err = initKernel.setArg(3, b_VNeurons);
+	err = initKernel.setArg(4, b_UNeurons);
 
 	// Creating an initQueue for running initialization kernel
-	cl::CommandQueue initQueue(initContext, initDevice);
+	cl::CommandQueue initQueue(clContext, clDevice);
 	err = initQueue.enqueueNDRangeKernel(initKernel, cl::NullRange, cl::NDRange(32));
 
 	initQueue.finish();

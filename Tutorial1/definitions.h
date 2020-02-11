@@ -39,8 +39,8 @@ extern "C" {
 // Declaration of OpenCL functions
 namespace opencl {
 
-	void createProgram(const std::string& filename, cl::Program& program, cl::Context& context, cl::Device& device, const int deviceIndex);
-
+	void setUpContext(cl::Context& context, cl::Device& device, const int deviceIndex);
+	void createProgram(const std::string& filename, cl::Program& program, cl::Context& context);
 	std::string getCLError(cl_int errorCode);
 
 }
