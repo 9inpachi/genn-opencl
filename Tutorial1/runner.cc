@@ -27,6 +27,7 @@ extern "C" {
 	cl::Device clDevice;
 	cl::Program initProgram;
 	cl::Program unProgram;
+	cl::CommandQueue commandQueue;
 }
 
 // Allocating memory to pointers
@@ -55,9 +56,10 @@ void allocateMem() {
 
 // Initializing kernel programs so that they can be used to run the kernels
 void initKernelPrograms() {
-	opencl::setUpContext(clContext, clDevice, 1);
+	opencl::setUpContext(clContext, clDevice, DEVICE_INDEX);
 	opencl::createProgram("init.cl", initProgram, clContext);
 	opencl::createProgram("updateNeuronsKernels.cl", unProgram, clContext);
+	commandQueue = cl::CommandQueue(clContext, clDevice);
 }
 
 void stepTime() {

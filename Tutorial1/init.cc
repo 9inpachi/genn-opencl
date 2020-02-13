@@ -15,10 +15,8 @@ void initialize() {
 	err = initKernel.setArg(4, b_UNeurons);
 
 	// Creating an initQueue for running initialization kernel
-	cl::CommandQueue initQueue(clContext, clDevice);
-	err = initQueue.enqueueNDRangeKernel(initKernel, cl::NullRange, cl::NDRange(32));
-
-	initQueue.finish();
+	err = commandQueue.enqueueNDRangeKernel(initKernel, cl::NullRange, cl::NDRange(32));
+	commandQueue.finish();
 
 	// Catching any errors in kernels
 	std::string err_here_init = opencl::getCLError(err);

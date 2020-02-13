@@ -17,5 +17,6 @@ extern "C" {
 	EXPORT_VAR cl::Device clDevice;
 	EXPORT_VAR cl::Program initProgram;
 	EXPORT_VAR cl::Program unProgram;
+	EXPORT_VAR cl::CommandQueue commandQueue;
 	
 }
