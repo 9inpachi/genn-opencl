@@ -2,10 +2,7 @@
 #include <fstream>
 
 int main() {
-	initKernelPrograms();
 	allocateMem();
-	initKernels();
-	initialize();
 
 	dd_aNeurons[0] = 0.02f;	dd_bNeurons[0] = 0.2f;	dd_cNeurons[0] = -65.0f;		dd_dNeurons[0] = 8.0f;
 	dd_aNeurons[1] = 0.1f;	dd_bNeurons[1] = 0.2f;	dd_cNeurons[1] = -65.0f;		dd_dNeurons[1] = 2.0f;
@@ -15,6 +12,8 @@ int main() {
 	dd_aNeurons[5] = 0.1f;	dd_bNeurons[5] = 0.26f;	dd_cNeurons[5] = -65.0f;		dd_dNeurons[5] = 2.0f; // For RZ
 	dd_aNeurons[6] = 0.02f;	dd_bNeurons[6] = 0.25f;	dd_cNeurons[6] = -65.0f;		dd_dNeurons[6] = 2.0f; // For LTS
 
+	initializeOpenCL();
+	initialize();
 
 	std::ofstream stream("spikes.csv");
 	while (t < 500.0f) {

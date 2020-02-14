@@ -37,7 +37,6 @@ extern "C" {
 
 // Allocating memory to pointers
 void allocateMem() {
-
 	// Allocating memory to host pointers
 	dd_glbSpkCntNeurons = (unsigned int*)malloc(1 * sizeof(unsigned int));
 	dd_glbSpkNeurons = (unsigned int*)malloc(NSIZE * sizeof(unsigned int));
@@ -47,16 +46,6 @@ void allocateMem() {
 	dd_bNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
 	dd_cNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
 	dd_dNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
-
-	// Buffers
-	b_glbSpkCntNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, 1 * sizeof(dd_glbSpkCntNeurons), dd_glbSpkCntNeurons);
-	b_glbSpkNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_glbSpkNeurons), dd_glbSpkNeurons);
-	b_VNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_VNeurons), dd_VNeurons);
-	b_UNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_UNeurons), dd_UNeurons);
-	b_aNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_aNeurons), dd_aNeurons);
-	b_bNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_bNeurons), dd_bNeurons);
-	b_cNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_cNeurons), dd_cNeurons);
-	b_dNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, NSIZE * sizeof(dd_dNeurons), dd_dNeurons);
 }
 
 // Initializing kernel programs so that they can be used to run the kernels
@@ -67,6 +56,20 @@ void initKernelPrograms() {
 	commandQueue = cl::CommandQueue(clContext, clDevice);
 }
 
+// Initialize buffers to be used by OpenCL kernels
+void initBuffers() {
+	// Buffers
+	b_glbSpkCntNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1 * sizeof(dd_glbSpkCntNeurons), dd_glbSpkCntNeurons);
+	b_glbSpkNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(dd_glbSpkNeurons), dd_glbSpkNeurons);
+	b_VNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(dd_VNeurons), dd_VNeurons);
+	b_UNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(dd_UNeurons), dd_UNeurons);
+	b_aNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(dd_aNeurons), dd_aNeurons);
+	b_bNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(dd_bNeurons), dd_bNeurons);
+	b_cNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(dd_cNeurons), dd_cNeurons);
+	b_dNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(dd_dNeurons), dd_dNeurons);
+}
+
+// Initialize kernels and set their arguments so they can directly run with the commandQueue
 void initKernels() {
 	cl_int err = CL_SUCCESS;
 
@@ -92,6 +95,12 @@ void initKernels() {
 	err = updateNeuronsKernel.setArg(9, b_dNeurons);
 }
 
+void initializeOpenCL() {
+	initKernelPrograms();
+	initBuffers();
+	initKernels();
+}
+
 void stepTime() {
 	updateNeurons(t);
 	iT++;
@@ -103,7 +112,7 @@ scalar* getCurrentVNeurons() {
 }
 
 void pullCurrentVNeuronsFromDevice() {
-	// commandQueue.enqueueReadBuffer(b_VNeurons, CL_TRUE, 0, NSIZE * sizeof(scalar), dd_VNeurons);
+	commandQueue.enqueueReadBuffer(b_VNeurons, CL_TRUE, 0, NSIZE * sizeof(scalar), dd_VNeurons);
 }
 
 
