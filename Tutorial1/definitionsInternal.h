@@ -18,5 +18,10 @@ extern "C" {
 	EXPORT_VAR cl::Program initProgram;
 	EXPORT_VAR cl::Program unProgram;
 	EXPORT_VAR cl::CommandQueue commandQueue;
+
+	// OpenCL kernels
+	EXPORT_VAR cl::Kernel initKernel;
+	EXPORT_VAR cl::Kernel preNeuronResetKernel;
+	EXPORT_VAR cl::Kernel updateNeuronsKernel;
 	
 }

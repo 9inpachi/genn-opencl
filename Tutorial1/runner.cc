@@ -28,6 +28,11 @@ extern "C" {
 	cl::Program initProgram;
 	cl::Program unProgram;
 	cl::CommandQueue commandQueue;
+
+	// OpenCL kernels
+	cl::Kernel initKernel;
+	cl::Kernel preNeuronResetKernel;
+	cl::Kernel updateNeuronsKernel;
 }
 
 // Allocating memory to pointers
@@ -62,6 +67,31 @@ void initKernelPrograms() {
 	commandQueue = cl::CommandQueue(clContext, clDevice);
 }
 
+void initKernels() {
+	cl_int err = CL_SUCCESS;
+
+	initKernel = cl::Kernel(initProgram, "initializeKernel");
+	// Setting kernel arguments
+	err = initKernel.setArg(1, b_glbSpkCntNeurons);
+	err = initKernel.setArg(2, b_glbSpkNeurons);
+	err = initKernel.setArg(3, b_VNeurons);
+	err = initKernel.setArg(4, b_UNeurons);
+
+	preNeuronResetKernel = cl::Kernel(unProgram, "preNeuronResetKernel");
+	err = preNeuronResetKernel.setArg(0, b_glbSpkCntNeurons);
+
+	updateNeuronsKernel = cl::Kernel(unProgram, "updateNeuronsKernel");
+	err = updateNeuronsKernel.setArg(1, DT);
+	err = updateNeuronsKernel.setArg(2, b_glbSpkCntNeurons);
+	err = updateNeuronsKernel.setArg(3, b_glbSpkNeurons);
+	err = updateNeuronsKernel.setArg(4, b_VNeurons);
+	err = updateNeuronsKernel.setArg(5, b_UNeurons);
+	err = updateNeuronsKernel.setArg(6, b_aNeurons);
+	err = updateNeuronsKernel.setArg(7, b_bNeurons);
+	err = updateNeuronsKernel.setArg(8, b_cNeurons);
+	err = updateNeuronsKernel.setArg(9, b_dNeurons);
+}
+
 void stepTime() {
 	updateNeurons(t);
 	iT++;
@@ -73,7 +103,7 @@ scalar* getCurrentVNeurons() {
 }
 
 void pullCurrentVNeuronsFromDevice() {
-
+	// commandQueue.enqueueReadBuffer(b_VNeurons, CL_TRUE, 0, NSIZE * sizeof(scalar), dd_VNeurons);
 }
 
 

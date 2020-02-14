@@ -11,7 +11,7 @@ typedef float scalar;
 
 #define DT 0.100000f
 #define NSIZE 7
-#define DEVICE_INDEX 2
+#define DEVICE_INDEX 1
 
 extern "C" {
 
@@ -30,6 +30,7 @@ extern "C" {
 	EXPORT_FUNC void allocateMem();
 	EXPORT_FUNC void initialize();
 	EXPORT_FUNC void initKernelPrograms();
+	EXPORT_FUNC void initKernels();
 	EXPORT_FUNC void stepTime();
 	EXPORT_FUNC scalar* getCurrentVNeurons();
 	EXPORT_FUNC void pullCurrentVNeuronsFromDevice();
