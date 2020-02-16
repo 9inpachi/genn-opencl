@@ -93,6 +93,8 @@ void initKernels() {
 	err = updateNeuronsKernel.setArg(7, db_bNeurons);
 	err = updateNeuronsKernel.setArg(8, db_cNeurons);
 	err = updateNeuronsKernel.setArg(9, db_dNeurons);
+
+	std::string errStr = opencl::getCLError(err);
 }
 
 void initializeOpenCL() {
