@@ -11,18 +11,18 @@ typedef float scalar;
 
 #define DT 0.100000f
 #define NSIZE 7
-#define DEVICE_INDEX 1
+#define DEVICE_INDEX 2
 
 extern "C" {
 
-	EXPORT_VAR unsigned int* dd_glbSpkCntNeurons;
-	EXPORT_VAR unsigned int* dd_glbSpkNeurons;
-	EXPORT_VAR scalar* dd_VNeurons;
-	EXPORT_VAR scalar* dd_UNeurons;
-	EXPORT_VAR scalar* dd_aNeurons;
-	EXPORT_VAR scalar* dd_bNeurons;
-	EXPORT_VAR scalar* dd_cNeurons;
-	EXPORT_VAR scalar* dd_dNeurons;
+	EXPORT_VAR unsigned int* glbSpkCntNeurons;
+	EXPORT_VAR unsigned int* glbSpkNeurons;
+	EXPORT_VAR scalar* VNeurons;
+	EXPORT_VAR scalar* UNeurons;
+	EXPORT_VAR scalar* aNeurons;
+	EXPORT_VAR scalar* bNeurons;
+	EXPORT_VAR scalar* cNeurons;
+	EXPORT_VAR scalar* dNeurons;
 	EXPORT_VAR unsigned long long iT;
 	EXPORT_VAR float t;
 

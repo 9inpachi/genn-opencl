@@ -4,13 +4,13 @@
 int main() {
 	allocateMem();
 
-	dd_aNeurons[0] = 0.02f;	dd_bNeurons[0] = 0.2f;	dd_cNeurons[0] = -65.0f;		dd_dNeurons[0] = 8.0f;
-	dd_aNeurons[1] = 0.1f;	dd_bNeurons[1] = 0.2f;	dd_cNeurons[1] = -65.0f;		dd_dNeurons[1] = 2.0f;
-	dd_aNeurons[2] = 0.02f;	dd_bNeurons[2] = 0.2f;	dd_cNeurons[2] = -50.0f;		dd_dNeurons[2] = 2.0f;
-	dd_aNeurons[3] = 0.02f;	dd_bNeurons[3] = 0.2f;	dd_cNeurons[3] = -55.0f;		dd_dNeurons[3] = 4.0f;
-	dd_aNeurons[4] = 0.02f;	dd_bNeurons[4] = 0.25f;	dd_cNeurons[4] = -65.0f;		dd_dNeurons[4] = 0.05f; // For TC
-	dd_aNeurons[5] = 0.1f;	dd_bNeurons[5] = 0.26f;	dd_cNeurons[5] = -65.0f;		dd_dNeurons[5] = 2.0f; // For RZ
-	dd_aNeurons[6] = 0.02f;	dd_bNeurons[6] = 0.25f;	dd_cNeurons[6] = -65.0f;		dd_dNeurons[6] = 2.0f; // For LTS
+	aNeurons[0] = 0.02f;	bNeurons[0] = 0.2f;	cNeurons[0] = -65.0f;		dNeurons[0] = 8.0f;
+	aNeurons[1] = 0.1f;	bNeurons[1] = 0.2f;	cNeurons[1] = -65.0f;		dNeurons[1] = 2.0f;
+	aNeurons[2] = 0.02f;	bNeurons[2] = 0.2f;	cNeurons[2] = -50.0f;		dNeurons[2] = 2.0f;
+	aNeurons[3] = 0.02f;	bNeurons[3] = 0.2f;	cNeurons[3] = -55.0f;		dNeurons[3] = 4.0f;
+	aNeurons[4] = 0.02f;	bNeurons[4] = 0.25f;	cNeurons[4] = -65.0f;		dNeurons[4] = 0.05f; // For TC
+	aNeurons[5] = 0.1f;	bNeurons[5] = 0.26f;	cNeurons[5] = -65.0f;		dNeurons[5] = 2.0f; // For RZ
+	aNeurons[6] = 0.02f;	bNeurons[6] = 0.25f;	cNeurons[6] = -65.0f;		dNeurons[6] = 2.0f; // For LTS
 
 	initializeOpenCL();
 	initialize();

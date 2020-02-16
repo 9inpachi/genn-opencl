@@ -3,14 +3,14 @@
 extern "C" {
 
 	// Buffers
-	EXPORT_VAR cl::Buffer b_glbSpkCntNeurons;
-	EXPORT_VAR cl::Buffer b_glbSpkNeurons;
-	EXPORT_VAR cl::Buffer b_VNeurons;
-	EXPORT_VAR cl::Buffer b_UNeurons;
-	EXPORT_VAR cl::Buffer b_aNeurons;
-	EXPORT_VAR cl::Buffer b_bNeurons;
-	EXPORT_VAR cl::Buffer b_cNeurons;
-	EXPORT_VAR cl::Buffer b_dNeurons;
+	EXPORT_VAR cl::Buffer db_glbSpkCntNeurons;
+	EXPORT_VAR cl::Buffer db_glbSpkNeurons;
+	EXPORT_VAR cl::Buffer db_VNeurons;
+	EXPORT_VAR cl::Buffer db_UNeurons;
+	EXPORT_VAR cl::Buffer db_aNeurons;
+	EXPORT_VAR cl::Buffer db_bNeurons;
+	EXPORT_VAR cl::Buffer db_cNeurons;
+	EXPORT_VAR cl::Buffer db_dNeurons;
 
 	// OpenCL variables
 	EXPORT_VAR cl::Context clContext;
