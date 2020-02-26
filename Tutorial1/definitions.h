@@ -11,7 +11,7 @@ typedef float scalar;
 
 #define DT 0.100000f
 #define NSIZE 7
-#define DEVICE_INDEX 2
+#define DEVICE_INDEX 1
 
 extern "C" {
 

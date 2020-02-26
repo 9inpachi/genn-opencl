@@ -158,6 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cl.cc" />
     <ClCompile Include="init.cc" />
     <ClCompile Include="neuronUpdate.cc" />
     <ClCompile Include="runner.cc" />

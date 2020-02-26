@@ -27,6 +27,9 @@
     <ClCompile Include="simulator.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cl.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="init.cl" />
