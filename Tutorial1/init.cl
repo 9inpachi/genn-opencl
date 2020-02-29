@@ -5,8 +5,7 @@ __kernel void initializeKernel(const unsigned int deviceRNGSeed,
 __global unsigned int* glbSpkCntNeurons,
 __global unsigned int* glbSpkNeurons,
 __global scalar* VNeurons,
-__global scalar* UNeurons
-) {
+__global scalar* UNeurons){
 	int groupId = get_group_id(0);
 	int localId = get_local_id(0);
     const unsigned int id = 32 * groupId + localId;
