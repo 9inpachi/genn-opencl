@@ -38,13 +38,3 @@ extern "C" {
 	EXPORT_FUNC void pullCurrentVNeuronsFromDevice();
 
 }
-
-
-// Declaration of OpenCL functions
-namespace opencl {
-
-	void setUpContext(cl::Context& context, cl::Device& device, const int deviceIndex);
-	void createProgram(const char* kernelSource, cl::Program& program, cl::Context& context);
-	std::string getCLError(cl_int errorCode);
-
-}
