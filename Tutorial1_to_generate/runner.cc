@@ -1,5 +1,120 @@
 #include "definitionsInternal.h"
 
+// Initialize kernel
+const char* initKernelSource = R"(typedef float scalar;
+
+// Will have to read the arguments again and update for the program
+__kernel void initializeKernel(const unsigned int deviceRNGSeed,
+__global unsigned int* glbSpkCntNeurons,
+__global unsigned int* glbSpkNeurons,
+__global scalar* VNeurons,
+__global scalar* UNeurons){
+	int groupId = get_group_id(0);
+	int localId = get_local_id(0);
+	const unsigned int id = 32 * groupId + localId;
+    
+	if(id < 32) {
+		// only do this for existing neurons
+		if(id < 7) {
+			if(id == 0) {
+				glbSpkCntNeurons[0] = 0;
+			}
+			glbSpkNeurons[id] = 0;
+			VNeurons[id] = (-6.50000000000000000e+01f);
+			UNeurons[id] = (-2.00000000000000000e+01f);
+			// current source variables
+		}
+	}
+})";
+
+// Update neurons kernel
+const char* updateNeuronsKernelSource = R"(typedef float scalar;
+
+__kernel void preNeuronResetKernel(__global unsigned int* glbSpkCntNeurons) {
+	int groupId = get_group_id(0);
+	int localId = get_local_id(0);
+	unsigned int id = 32 * groupId + localId;
+	if (id == 0) {
+		glbSpkCntNeurons[0] = 0;
+	}
+}
+
+__kernel void updateNeuronsKernel(const float t,
+	const float DT,
+	__global unsigned int* glbSpkCntNeurons,
+	__global unsigned int* glbSpkNeurons,
+	__global scalar* VNeurons,
+	__global scalar* UNeurons,
+	__global scalar* aNeurons,
+	__global scalar* bNeurons,
+	__global scalar* cNeurons,
+	__global scalar* dNeurons)
+{
+	int groupId = get_group_id(0);
+	int localId = get_local_id(0);
+	const unsigned int id = 32 * groupId + localId;
+	volatile __local unsigned int shSpk[32];
+	volatile __local unsigned int shPosSpk;
+	volatile __local unsigned int shSpkCount;
+	if (localId == 0); {
+		shSpkCount = 0;
+	}
+
+	barrier(CLK_LOCAL_MEM_FENCE);
+	// Neurons
+	if (id < 32) {
+
+		if (id < 7) {
+			scalar lV = VNeurons[id];
+			scalar lU = UNeurons[id];
+			scalar la = aNeurons[id];
+			scalar lb = bNeurons[id];
+			scalar lc = cNeurons[id];
+			scalar ld = dNeurons[id];
+
+			float Isyn = 0;
+			// current source CurrentSource
+			{
+				Isyn += (1.00000000000000000e+01f);
+
+			}
+			// test whether spike condition was fulfilled previously
+			const bool oldSpike = (lV >= 29.99f);
+			// calculate membrane potential
+			if (lV >= 30.0f) {
+				lV = lc;
+				lU += ld;
+			}
+			lV += 0.5f * (0.04f * lV * lV + 5.0f * lV + 140.0f - lU + Isyn) * DT; //at two times for numerical stability
+			lV += 0.5f * (0.04f * lV * lV + 5.0f * lV + 140.0f - lU + Isyn) * DT;
+			lU += la * (lb * lV - lU) * DT;
+			if (lV > 30.0f) {   //keep this to not confuse users with unrealistiv voltage values 
+				lV = 30.0f;
+			}
+
+			// test for and register a true spike
+			if ((lV >= 29.99f) && !(oldSpike)) {
+				const unsigned int spkIdx = atomic_add(&shSpkCount, 1);
+				shSpk[spkIdx] = id;
+			}
+			VNeurons[id] = lV;
+			UNeurons[id] = lU;
+		}
+		barrier(CLK_LOCAL_MEM_FENCE);
+		if (localId == 0) {
+			if (shSpkCount > 0) {
+				shPosSpk = atomic_add(&glbSpkCntNeurons[0], shSpkCount);
+			}
+		}
+		barrier(CLK_LOCAL_MEM_FENCE);
+		if (localId < shSpkCount) {
+			const unsigned int n = shSpk[localId];
+			glbSpkNeurons[shPosSpk + localId] = n;
+		}
+	}
+
+})";
+
 extern "C" {
 	unsigned int* glbSpkCntNeurons;
 	unsigned int* glbSpkNeurons;
@@ -51,113 +166,8 @@ void allocateMem() {
 // Initializing kernel programs so that they can be used to run the kernels
 void initKernelPrograms() {
 	opencl::setUpContext(clContext, clDevice, DEVICE_INDEX);
-
-	// Initialize kernel
-	const char* initKernelSource = "typedef float scalar;					\n" \
-		"__kernel void initializeKernel(const unsigned int deviceRNGSeed,	\n" \
-		"	__global unsigned int* glbSpkCntNeurons,						\n" \
-		"	__global unsigned int* glbSpkNeurons,							\n" \
-		"	__global scalar * VNeurons,										\n" \
-		"	__global scalar * UNeurons) {									\n" \
-		"	int groupId = get_group_id(0);									\n" \
-		"	int localId = get_local_id(0);									\n" \
-		"	const unsigned int id = 32 * groupId + localId;					\n" \
-		"	if (id < 32) {													\n" \
-		"		// only do this for existing neurons						\n" \
-		"		if (id < 7) {												\n" \
-		"			if (id == 0) {											\n" \
-		"				glbSpkCntNeurons[0] = 0;							\n" \
-		"			}														\n" \
-		"			glbSpkNeurons[id] = 0;									\n" \
-		"			VNeurons[id] = (-6.50000000000000000e+01f);				\n" \
-		"			UNeurons[id] = (-2.00000000000000000e+01f);				\n" \
-		"			// current source variables								\n" \
-		"		}															\n" \
-		"	}																\n" \
-		"}																	\n";
-	// Create program for initialize kernel
+	// Create programs for kernels
 	opencl::createProgram(initKernelSource, initProgram, clContext);
-
-
-	// Update neurons kernel
-	const char* updateNeuronsKernelSource = "typedef float scalar;																		\n" \
-		"__kernel void preNeuronResetKernel(__global unsigned int* glbSpkCntNeurons) {													\n" \
-		"	int groupId = get_group_id(0);																								\n" \
-		"	int localId = get_local_id(0);																								\n" \
-		"	unsigned int id = 32 * groupId + localId;																					\n" \
-		"	if (id == 0) {																												\n" \
-		"		glbSpkCntNeurons[0] = 0;																								\n" \
-		"	}																															\n" \
-		"}																																\n" \
-		"__kernel void updateNeuronsKernel(const float t,																				\n" \
-		"	const float DT,																												\n" \
-		"	__global unsigned int* glbSpkCntNeurons,																					\n" \
-		"	__global unsigned int* glbSpkNeurons,																						\n" \
-		"	__global scalar* VNeurons,																									\n" \
-		"	__global scalar* UNeurons,																									\n" \
-		"	__global scalar* aNeurons,																									\n" \
-		"	__global scalar* bNeurons,																									\n" \
-		"	__global scalar* cNeurons,																									\n" \
-		"	__global scalar* dNeurons)																									\n" \
-		"{																																\n" \
-		"	int groupId = get_group_id(0);																								\n" \
-		"	int localId = get_local_id(0);																								\n" \
-		"	const unsigned int id = 32 * groupId + localId;																				\n" \
-		"	volatile __local unsigned int shSpk[32];																					\n" \
-		"	volatile __local unsigned int shPosSpk;																						\n" \
-		"	volatile __local unsigned int shSpkCount;																					\n" \
-		"	if (localId == 0); {																										\n" \
-		"		shSpkCount = 0;																											\n" \
-		"	}																															\n" \
-		"	barrier(CLK_LOCAL_MEM_FENCE);																								\n" \
-		"	// Neurons																													\n" \
-		"	if (id < 32) {																												\n" \
-		"		if (id < 7) {																											\n" \
-		"			scalar lV = VNeurons[id];																							\n" \
-		"			scalar lU = UNeurons[id];																							\n" \
-		"			scalar la = aNeurons[id];																							\n" \
-		"			scalar lb = bNeurons[id];																							\n" \
-		"			scalar lc = cNeurons[id];																							\n" \
-		"			scalar ld = dNeurons[id];																							\n" \
-		"			float Isyn = 0;																										\n" \
-		"			// current source CurrentSource																						\n" \
-		"			{																													\n" \
-		"				Isyn += (1.00000000000000000e+01f);																				\n" \
-		"			}																													\n" \
-		"			// test whether spike condition was fulfilled previously															\n" \
-		"			const bool oldSpike = (lV >= 29.99f);																				\n" \
-		"			// calculate membrane potential																						\n" \
-		"			if (lV >= 30.0f) {																									\n" \
-		"				lV = lc;																										\n" \
-		"				lU += ld;																										\n" \
-		"			}																													\n" \
-		"			lV += 0.5f * (0.04f * lV * lV + 5.0f * lV + 140.0f - lU + Isyn) * DT; //at two times for numerical stability		\n" \
-		"			lV += 0.5f * (0.04f * lV * lV + 5.0f * lV + 140.0f - lU + Isyn) * DT;												\n" \
-		"			lU += la * (lb * lV - lU) * DT;																						\n" \
-		"			if (lV > 30.0f) {   //keep this to not confuse users with unrealistiv voltage values 								\n" \
-		"				lV = 30.0f;																										\n" \
-		"			}																													\n" \
-		"			// test for and register a true spike																				\n" \
-		"			if ((lV >= 29.99f) && !(oldSpike)) {																				\n" \
-		"				const unsigned int spkIdx = atomic_add(&shSpkCount, 1);															\n" \
-		"				shSpk[spkIdx] = id;																								\n" \
-		"			}																													\n" \
-		"			VNeurons[id] = lV;																									\n" \
-		"			UNeurons[id] = lU;																									\n" \
-		"		}																														\n" \
-		"		barrier(CLK_LOCAL_MEM_FENCE);																							\n" \
-		"		if (localId == 0) {																										\n" \
-		"			if (shSpkCount > 0) {																								\n" \
-		"				shPosSpk = atomic_add(&glbSpkCntNeurons[0], shSpkCount);														\n" \
-		"			}																													\n" \
-		"		}																														\n" \
-		"		barrier(CLK_LOCAL_MEM_FENCE);																							\n" \
-		"		if (localId < shSpkCount) {																								\n" \
-		"			const unsigned int n = shSpk[localId];																				\n" \
-		"			glbSpkNeurons[shPosSpk + localId] = n;																				\n" \
-		"		}																														\n" \
-		"	}																															\n" \
-		"}																																\n";
 	opencl::createProgram(updateNeuronsKernelSource, unProgram, clContext);
 	commandQueue = cl::CommandQueue(clContext, clDevice);
 }
