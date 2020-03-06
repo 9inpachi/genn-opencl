@@ -29,10 +29,7 @@ extern "C" {
 	EXPORT_FUNC void updateNeurons(float t);
 	EXPORT_FUNC void allocateMem();
 	EXPORT_FUNC void initialize();
-	EXPORT_FUNC void initKernelPrograms();
-	EXPORT_FUNC void initKernels();
-	EXPORT_FUNC void initBuffers();
-	EXPORT_FUNC void initializeOpenCL();
+	EXPORT_FUNC void initializeSparse();
 	EXPORT_FUNC void stepTime();
 	EXPORT_FUNC scalar* getCurrentVNeurons();
 	EXPORT_FUNC void pullCurrentVNeuronsFromDevice();

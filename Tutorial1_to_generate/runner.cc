@@ -214,7 +214,7 @@ void initKernels() {
 }
 
 // Initialize all OpenCL elements
-void initializeOpenCL() {
+void initializeSparse() {
 	initKernelPrograms();
 	initBuffers();
 	initKernels();
