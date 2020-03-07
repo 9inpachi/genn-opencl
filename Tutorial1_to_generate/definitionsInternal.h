@@ -23,6 +23,9 @@ extern "C" {
 	EXPORT_VAR cl::Kernel initKernel;
 	EXPORT_VAR cl::Kernel preNeuronResetKernel;
 	EXPORT_VAR cl::Kernel updateNeuronsKernel;
+	// OpenCL kernels sources
+	EXPORT_VAR const char* updateNeuronsKernelSource;
+	EXPORT_VAR const char* initKernelSource;
 	
 }
 
