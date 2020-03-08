@@ -27,6 +27,16 @@ __global scalar* UNeurons){
 	}
 })";
 
+// Initialize the initialization kernel
+void initInitKernel() {
+	initKernel = cl::Kernel(initProgram, "initializeKernel");
+	// Setting kernel arguments
+	initKernel.setArg(1, db_glbSpkCntNeurons);
+	initKernel.setArg(2, db_glbSpkNeurons);
+	initKernel.setArg(3, db_VNeurons);
+	initKernel.setArg(4, db_UNeurons);
+}
+
 void initialize() {
     unsigned long deviceRNGSeed = 0;
 

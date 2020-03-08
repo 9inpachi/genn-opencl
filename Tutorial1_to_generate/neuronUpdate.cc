@@ -1,6 +1,5 @@
 #include "definitionsInternal.h"
 
-
 // Update neurons kernel
 extern "C" const char* updateNeuronsKernelSource = R"(typedef float scalar;
 
@@ -88,6 +87,23 @@ __kernel void updateNeuronsKernel(const float t,
 	}
 
 })";
+
+// Initialize the neuronUpdate kernels
+void initUpdateNeuronsKernels() {
+	preNeuronResetKernel = cl::Kernel(unProgram, "preNeuronResetKernel");
+	preNeuronResetKernel.setArg(0, db_glbSpkCntNeurons);
+
+	updateNeuronsKernel = cl::Kernel(unProgram, "updateNeuronsKernel");
+	updateNeuronsKernel.setArg(1, DT);
+	updateNeuronsKernel.setArg(2, db_glbSpkCntNeurons);
+	updateNeuronsKernel.setArg(3, db_glbSpkNeurons);
+	updateNeuronsKernel.setArg(4, db_VNeurons);
+	updateNeuronsKernel.setArg(5, db_UNeurons);
+	updateNeuronsKernel.setArg(6, db_aNeurons);
+	updateNeuronsKernel.setArg(7, db_bNeurons);
+	updateNeuronsKernel.setArg(8, db_cNeurons);
+	updateNeuronsKernel.setArg(9, db_dNeurons);
+}
 
 void updateNeurons(float t) {
 

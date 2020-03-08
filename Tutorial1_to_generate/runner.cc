@@ -70,39 +70,13 @@ void initBuffers() {
 	db_dNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(dNeurons), dNeurons);
 }
 
-// Initialize kernels and set their arguments so they can directly run with the commandQueue
-void initKernels() {
-	cl_int err = CL_SUCCESS;
-
-	initKernel = cl::Kernel(initProgram, "initializeKernel");
-	// Setting kernel arguments
-	err = initKernel.setArg(1, db_glbSpkCntNeurons);
-	err = initKernel.setArg(2, db_glbSpkNeurons);
-	err = initKernel.setArg(3, db_VNeurons);
-	err = initKernel.setArg(4, db_UNeurons);
-
-	preNeuronResetKernel = cl::Kernel(unProgram, "preNeuronResetKernel");
-	err = preNeuronResetKernel.setArg(0, db_glbSpkCntNeurons);
-
-	updateNeuronsKernel = cl::Kernel(unProgram, "updateNeuronsKernel");
-	err = updateNeuronsKernel.setArg(1, DT);
-	err = updateNeuronsKernel.setArg(2, db_glbSpkCntNeurons);
-	err = updateNeuronsKernel.setArg(3, db_glbSpkNeurons);
-	err = updateNeuronsKernel.setArg(4, db_VNeurons);
-	err = updateNeuronsKernel.setArg(5, db_UNeurons);
-	err = updateNeuronsKernel.setArg(6, db_aNeurons);
-	err = updateNeuronsKernel.setArg(7, db_bNeurons);
-	err = updateNeuronsKernel.setArg(8, db_cNeurons);
-	err = updateNeuronsKernel.setArg(9, db_dNeurons);
-
-	std::string errStr = opencl::getCLError(err);
-}
-
 // Initialize all OpenCL elements
 void initializeSparse() {
 	initKernelPrograms();
 	initBuffers();
-	initKernels();
+	// Initializing kernels
+	initInitKernel();
+	initUpdateNeuronsKernels();
 }
 
 void stepTime() {
