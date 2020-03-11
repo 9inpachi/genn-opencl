@@ -1,6 +1,4 @@
 #pragma once
-#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#include <CL/cl.hpp>
 #include <cassert>
 #include <fstream>
 
@@ -11,7 +9,6 @@ typedef float scalar;
 
 #define DT 0.100000f
 #define NSIZE 7
-#define DEVICE_INDEX 1
 
 extern "C" {
 
