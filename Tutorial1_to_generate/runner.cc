@@ -35,19 +35,6 @@ extern "C" {
 	cl::Kernel updateNeuronsKernel;
 }
 
-// Allocating memory to pointers
-void allocateMem() {
-	// Allocating memory to host pointers
-	glbSpkCntNeurons = (unsigned int*)malloc(1 * sizeof(unsigned int));
-	glbSpkNeurons = (unsigned int*)malloc(NSIZE * sizeof(unsigned int));
-	VNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
-	UNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
-	aNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
-	bNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
-	cNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
-	dNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
-}
-
 // Initializing kernel programs so that they can be used to run the kernels
 void initKernelPrograms() {
 	opencl::setUpContext(clContext, clDevice, DEVICE_INDEX);
@@ -57,9 +44,29 @@ void initKernelPrograms() {
 	commandQueue = cl::CommandQueue(clContext, clDevice);
 }
 
-// Initialize all OpenCL elements
-void initializeSparse() {
+// Allocating memory to pointers
+void allocateMem() {
 	initKernelPrograms();
+	// Allocating memory to host pointers
+	glbSpkCntNeurons = (unsigned int*)malloc(1 * sizeof(unsigned int));
+	glbSpkNeurons = (unsigned int*)malloc(NSIZE * sizeof(unsigned int));
+	VNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
+	UNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
+	aNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
+	bNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
+	cNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
+	dNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
+
+	// Initialize buffers to be used by OpenCL kernels
+	db_glbSpkCntNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, 1 * sizeof(glbSpkCntNeurons), glbSpkCntNeurons);
+	db_glbSpkNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(glbSpkNeurons), glbSpkNeurons);
+	db_VNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(VNeurons), VNeurons);
+	db_UNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(UNeurons), UNeurons);
+	db_aNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(aNeurons), aNeurons);
+	db_bNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(bNeurons), bNeurons);
+	db_cNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(cNeurons), cNeurons);
+	db_dNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(dNeurons), dNeurons);
+
 	// Initializing kernels
 	initInitKernel();
 	initUpdateNeuronsKernels();
@@ -77,6 +84,45 @@ scalar* getCurrentVNeurons() {
 
 void pullCurrentVNeuronsFromDevice() {
 	commandQueue.enqueueReadBuffer(db_VNeurons, CL_TRUE, 0, NSIZE * sizeof(scalar), VNeurons);
+}
+
+// Push functions
+
+void pushVNeuronsToDevice(bool uninitialisedOnly) {
+	commandQueue.enqueueWriteBuffer(db_VNeurons, CL_TRUE, 0, 7 * sizeof(scalar), VNeurons);
+}
+
+void pushUNeuronsToDevice(bool uninitialisedOnly) {
+	commandQueue.enqueueWriteBuffer(db_UNeurons, CL_TRUE, 0, 7 * sizeof(scalar), UNeurons);
+}
+
+void pushaNeuronsToDevice(bool uninitialisedOnly) {
+	commandQueue.enqueueWriteBuffer(db_aNeurons, CL_TRUE, 0, 7 * sizeof(scalar), aNeurons);
+}
+
+void pushbNeuronsToDevice(bool uninitialisedOnly) {
+	commandQueue.enqueueWriteBuffer(db_bNeurons, CL_TRUE, 0, 7 * sizeof(scalar), bNeurons);
+}
+
+void pushcNeuronsToDevice(bool uninitialisedOnly) {
+	commandQueue.enqueueWriteBuffer(db_cNeurons, CL_TRUE, 0, 7 * sizeof(scalar), cNeurons);
+}
+
+void pushdNeuronsToDevice(bool uninitialisedOnly) {
+	commandQueue.enqueueWriteBuffer(db_dNeurons, CL_TRUE, 0, 7 * sizeof(scalar), dNeurons);
+}
+
+void pushNeuronsStateToDevice(bool uninitialisedOnly) {
+	pushVNeuronsToDevice(uninitialisedOnly);
+	pushUNeuronsToDevice(uninitialisedOnly);
+	pushaNeuronsToDevice(uninitialisedOnly);
+	pushbNeuronsToDevice(uninitialisedOnly);
+	pushcNeuronsToDevice(uninitialisedOnly);
+	pushdNeuronsToDevice(uninitialisedOnly);
+}
+
+void copyStateToDevice(bool uninitialisedOnly) {
+	pushNeuronsStateToDevice(uninitialisedOnly);
 }
 
 // ------------------------------------------------------------------------
