@@ -3,6 +3,7 @@
 
 int main() {
 	allocateMem();
+	initialize();
 
 	aNeurons[0] = 0.02f;	bNeurons[0] = 0.2f;		cNeurons[0] = -65.0f;		dNeurons[0] = 8.0f;
 	aNeurons[1] = 0.1f;		bNeurons[1] = 0.2f;		cNeurons[1] = -65.0f;		dNeurons[1] = 2.0f;
@@ -13,7 +14,6 @@ int main() {
 	aNeurons[6] = 0.02f;	bNeurons[6] = 0.25f;	cNeurons[6] = -65.0f;		dNeurons[6] = 2.0f; // For LTS
 
 	initializeSparse();
-	initialize();
 
 	std::ofstream stream("spikes.csv");
 	while (t < 500.0f) {

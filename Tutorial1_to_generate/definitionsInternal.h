@@ -3,7 +3,7 @@
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #include <CL/cl.hpp>
 
-#define DEVICE_INDEX 2
+#define DEVICE_INDEX 1
 
 extern "C" {
 

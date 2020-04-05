@@ -1,4 +1,5 @@
 #include "definitionsInternal.h"
+#include <iostream>
 
 extern "C" {
 	unsigned int* glbSpkCntNeurons;
@@ -89,11 +90,15 @@ void pullCurrentVNeuronsFromDevice() {
 // Push functions
 
 void pushVNeuronsToDevice(bool uninitialisedOnly) {
-	commandQueue.enqueueWriteBuffer(db_VNeurons, CL_TRUE, 0, 7 * sizeof(scalar), VNeurons);
+	if (!uninitialisedOnly) {
+		commandQueue.enqueueWriteBuffer(db_VNeurons, CL_TRUE, 0, 7 * sizeof(scalar), VNeurons);
+	}
 }
 
 void pushUNeuronsToDevice(bool uninitialisedOnly) {
-	commandQueue.enqueueWriteBuffer(db_UNeurons, CL_TRUE, 0, 7 * sizeof(scalar), UNeurons);
+	if (!uninitialisedOnly) {
+		commandQueue.enqueueWriteBuffer(db_UNeurons, CL_TRUE, 0, 7 * sizeof(scalar), UNeurons);
+	}
 }
 
 void pushaNeuronsToDevice(bool uninitialisedOnly) {
@@ -156,6 +161,8 @@ void opencl::setUpContext(cl::Context& context, cl::Device& device, const int de
 	else {
 		device = devices[deviceIndex]; // We will perform our operations using this device
 	}
+
+	std::cout << "DEVICE: " << device.getInfo<CL_DEVICE_NAME>();
 
 	context = cl::Context(device);
 
