@@ -48,6 +48,7 @@ void initKernelPrograms() {
 // Allocating memory to pointers
 void allocateMem() {
 	initKernelPrograms();
+
 	// Allocating memory to host pointers
 	glbSpkCntNeurons = (unsigned int*)malloc(1 * sizeof(unsigned int));
 	glbSpkNeurons = (unsigned int*)malloc(NSIZE * sizeof(unsigned int));
@@ -59,14 +60,14 @@ void allocateMem() {
 	dNeurons = (scalar*)malloc(NSIZE * sizeof(scalar));
 
 	// Initialize buffers to be used by OpenCL kernels
-	db_glbSpkCntNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, 1 * sizeof(glbSpkCntNeurons), glbSpkCntNeurons);
-	db_glbSpkNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(glbSpkNeurons), glbSpkNeurons);
-	db_VNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(VNeurons), VNeurons);
-	db_UNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(UNeurons), UNeurons);
-	db_aNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(aNeurons), aNeurons);
-	db_bNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(bNeurons), bNeurons);
-	db_cNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(cNeurons), cNeurons);
-	db_dNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE, NSIZE * sizeof(dNeurons), dNeurons);
+	db_glbSpkCntNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1 * sizeof(glbSpkCntNeurons), glbSpkCntNeurons);
+	db_glbSpkNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(glbSpkNeurons), glbSpkNeurons);
+	db_VNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(VNeurons), VNeurons);
+	db_UNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(UNeurons), UNeurons);
+	db_aNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(aNeurons), aNeurons);
+	db_bNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(bNeurons), bNeurons);
+	db_cNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(cNeurons), cNeurons);
+	db_dNeurons = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, NSIZE * sizeof(dNeurons), dNeurons);
 
 	// Initializing kernels
 	initInitKernel();
