@@ -47,6 +47,7 @@ void initKernelPrograms() {
 
 // Allocating memory to pointers
 void allocateMem() {
+    // Initializing OpenCL programs
 	initKernelPrograms();
 
 	// Allocating memory to host pointers
@@ -182,7 +183,7 @@ void opencl::createProgram(const char *kernelSource, cl::Program& program, cl::C
 // Get OpenCL error from error code
 std::string opencl::getCLError(cl_int errorCode) {
 	switch (errorCode) {
-		case CL_SUCCESS:							return "Success!";
+		case CL_SUCCESS:                            return "Success!";
 		case CL_DEVICE_NOT_FOUND:                   return "Device not found.";
 		case CL_DEVICE_NOT_AVAILABLE:               return "Device not available";
 		case CL_COMPILER_NOT_AVAILABLE:             return "Compiler not available";
@@ -204,7 +205,7 @@ std::string opencl::getCLError(cl_int errorCode) {
 		case CL_INVALID_COMMAND_QUEUE:              return "Invalid command queue";
 		case CL_INVALID_HOST_PTR:                   return "Invalid host pointer";
 		case CL_INVALID_MEM_OBJECT:                 return "Invalid memory object";
-		case CL_INVALID_IMAGE_FORMAT_DESCRIPTOR:	return "Invalid image format descriptor";
+		case CL_INVALID_IMAGE_FORMAT_DESCRIPTOR:    return "Invalid image format descriptor";
 		case CL_INVALID_IMAGE_SIZE:                 return "Invalid image size";
 		case CL_INVALID_SAMPLER:                    return "Invalid sampler";
 		case CL_INVALID_BINARY:                     return "Invalid binary";
@@ -228,6 +229,6 @@ std::string opencl::getCLError(cl_int errorCode) {
 		case CL_INVALID_GL_OBJECT:                  return "Invalid OpenGL object";
 		case CL_INVALID_BUFFER_SIZE:                return "Invalid buffer size";
 		case CL_INVALID_MIP_LEVEL:                  return "Invalid mip - map level";
-		default:									return "Unknown";
+		default:                                    return "Unknown";
 	}
 }
