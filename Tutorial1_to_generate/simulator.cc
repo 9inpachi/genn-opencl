@@ -13,6 +13,7 @@ int main() {
     aNeurons[5] = 0.1f;     bNeurons[5] = 0.26f;    cNeurons[5] = -65.0f;   dNeurons[5] = 2.0f; // For RZ
     aNeurons[6] = 0.02f;    bNeurons[6] = 0.25f;    cNeurons[6] = -65.0f;   dNeurons[6] = 2.0f; // For LTS
 
+
     initializeSparse();
 
     std::ofstream stream("spikes.csv");
