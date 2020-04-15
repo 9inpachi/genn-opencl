@@ -72,6 +72,14 @@ extern "C" {
     EXPORT_VAR unsigned int* rowLengthInh_Inh;
     EXPORT_VAR uint32_t* indInh_Inh;
 
+    // Synapse variables
+    EXPORT_FUNC void pullExcCurrentSpikesFromDevice();
+    EXPORT_FUNC void pullInhCurrentSpikesFromDevice();
+    EXPORT_FUNC unsigned int* getExcCurrentSpikes();
+    EXPORT_FUNC unsigned int* getInhCurrentSpikes();
+    EXPORT_FUNC unsigned int& getExcCurrentSpikeCount();
+    EXPORT_FUNC unsigned int& getInhCurrentSpikeCount();
+
     // Runner functions
     EXPORT_FUNC void copyStateToDevice(bool uninitialisedOnly = false);
     EXPORT_FUNC void copyConnectivityToDevice(bool uninitialisedOnly = false);

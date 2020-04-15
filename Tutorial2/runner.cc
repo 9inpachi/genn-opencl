@@ -2,11 +2,71 @@
 #include <iostream>
 
 extern "C" {
-    
+    unsigned long long iT;
+    float t;
+
+    // Buffers and host variables
+    // ------------------------------------------------------------------------
+    // local neuron groups
+    // ------------------------------------------------------------------------
+    unsigned int* glbSpkCntExc;
+    cl::Buffer d_glbSpkCntExc;
+    unsigned int* glbSpkExc;
+    cl::Buffer d_glbSpkExc;
+    scalar* VExc;
+    cl::Buffer d_VExc;
+    scalar* UExc;
+    cl::Buffer d_UExc;
+    // current source variables
+    unsigned int* glbSpkCntInh;
+    cl::Buffer d_glbSpkCntInh;
+    unsigned int* glbSpkInh;
+    cl::Buffer d_glbSpkInh;
+    scalar* VInh;
+    cl::Buffer d_VInh;
+    scalar* UInh;
+    cl::Buffer d_UInh;
+    // current source variables
+
+    // ------------------------------------------------------------------------
+    // postsynaptic variables
+    // ------------------------------------------------------------------------
+    float* inSynInh_Exc;
+    cl::Buffer d_inSynInh_Exc;
+    float* inSynExc_Exc;
+    cl::Buffer d_inSynExc_Exc;
+    float* inSynInh_Inh;
+    cl::Buffer d_inSynInh_Inh;
+    float* inSynExc_Inh;
+    cl::Buffer d_inSynExc_Inh;
+
+    // ------------------------------------------------------------------------
+    // synapse connectivity
+    // ------------------------------------------------------------------------
+    const unsigned int maxRowLengthExc_Exc = 953;
+    unsigned int* rowLengthExc_Exc;
+    cl::Buffer d_rowLengthExc_Exc;
+    uint32_t* indExc_Exc;
+    cl::Buffer d_indExc_Exc;
+    const unsigned int maxRowLengthExc_Inh = 279;
+    unsigned int* rowLengthExc_Inh;
+    cl::Buffer d_rowLengthExc_Inh;
+    uint32_t* indExc_Inh;
+    cl::Buffer d_indExc_Inh;
+    const unsigned int maxRowLengthInh_Exc = 946;
+    unsigned int* rowLengthInh_Exc;
+    cl::Buffer d_rowLengthInh_Exc;
+    uint32_t* indInh_Exc;
+    cl::Buffer d_indInh_Exc;
+    const unsigned int maxRowLengthInh_Inh = 275;
+    unsigned int* rowLengthInh_Inh;
+    cl::Buffer d_rowLengthInh_Inh;
+    uint32_t* indInh_Inh;
+    cl::Buffer d_indInh_Inh;
 }
 
 // Initializing kernel programs so that they can be used to run the kernels
-void initKernelPrograms() {
+void initPrograms() {
     opencl::setUpContext(clContext, clDevice, DEVICE_INDEX);
     // Create programs for kernels
     opencl::createProgram(initKernelSource, initProgram, clContext);
@@ -16,16 +76,97 @@ void initKernelPrograms() {
 
 // Allocating memory to pointers
 void allocateMem() {
-    
+    initPrograms();
+
+    d_rng = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1 * sizeof(clrngPhilox432Stream), rng);
+    // ------------------------------------------------------------------------
+    // local neuron groups
+    // ------------------------------------------------------------------------
+    glbSpkCntExc = (unsigned int*)malloc(1 * sizeof(unsigned int));
+    d_glbSpkCntExc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1 * sizeof(unsigned int), glbSpkCntExc);
+    glbSpkExc = (unsigned int*)malloc(1 * sizeof(unsigned int));
+    d_glbSpkExc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1 * sizeof(unsigned int), glbSpkExc);
+    VExc = (scalar*)malloc(8000 * sizeof(scalar));
+    d_VExc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 8000 * sizeof(scalar), VExc);
+    UExc = (scalar*)malloc(8000 * sizeof(scalar));
+    d_UExc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 8000 * sizeof(scalar), UExc);
+    // current source variables
+    glbSpkCntInh = (unsigned int*)malloc(1 * sizeof(unsigned int));
+    d_glbSpkCntInh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1 * sizeof(unsigned int), glbSpkCntInh);
+    glbSpkInh = (unsigned int*)malloc(2000 * sizeof(unsigned int));
+    d_glbSpkInh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 2000 * sizeof(unsigned int), glbSpkInh);
+    VInh = (scalar*)malloc(2000 * sizeof(scalar));
+    d_VInh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 2000 * sizeof(scalar), VInh);
+    UInh = (scalar*)malloc(2000 * sizeof(scalar));
+    d_UInh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 2000 * sizeof(scalar), UInh);
+    // current source variables
+
+    // ------------------------------------------------------------------------
+    // postsynaptic variables
+    // ------------------------------------------------------------------------
+    inSynInh_Exc = (float*)malloc(8000 * sizeof(float));
+    d_inSynInh_Exc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 8000 * sizeof(float), inSynInh_Exc);
+    inSynExc_Exc = (float*)malloc(8000 * sizeof(float));
+    d_inSynExc_Exc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 8000 * sizeof(float), inSynExc_Exc);
+    inSynInh_Inh = (float*)malloc(2000 * sizeof(float));
+    d_inSynInh_Inh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 2000 * sizeof(float), inSynInh_Inh);
+    inSynExc_Inh = (float*)malloc(2000 * sizeof(float));
+    d_inSynExc_Inh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 2000 * sizeof(float), inSynExc_Inh);
+
+    // ------------------------------------------------------------------------
+    // synapse connectivity
+    // ------------------------------------------------------------------------
+    rowLengthExc_Exc = (unsigned int*)malloc(8000 * sizeof(unsigned int));
+    d_rowLengthExc_Exc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 8000 * sizeof(unsigned int), rowLengthExc_Exc);
+    indExc_Exc = (uint32_t*)malloc(7624000 * sizeof(uint32_t));
+    d_indExc_Exc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 7624000 * sizeof(uint32_t), indExc_Exc);
+    rowLengthExc_Inh = (unsigned int*)malloc(8000 * sizeof(unsigned int));
+    d_rowLengthExc_Inh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 8000 * sizeof(unsigned int), rowLengthExc_Inh);
+    indExc_Inh = (uint32_t*)malloc(2232000 * sizeof(uint32_t));
+    d_indExc_Inh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 2232000 * sizeof(uint32_t), indExc_Inh);
+    rowLengthInh_Exc = (unsigned int*)malloc(2000 * sizeof(unsigned int));
+    d_rowLengthInh_Exc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 2000 * sizeof(unsigned int), rowLengthInh_Exc);
+    indInh_Exc = (uint32_t*)malloc(1892000 * sizeof(uint32_t));
+    d_indInh_Exc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1892000 * sizeof(uint32_t), indInh_Exc);
+    rowLengthInh_Inh = (unsigned int*)malloc(2000 * sizeof(unsigned int));
+    d_rowLengthInh_Inh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 2000 * sizeof(unsigned int), rowLengthInh_Inh);
+    indInh_Inh = (uint32_t*)malloc(550000 * sizeof(uint32_t));
+    d_indInh_Inh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 550000 * sizeof(uint32_t), indInh_Inh);
+
     // Initializing kernels
     initInitKernel();
     initUpdateNeuronsKernels();
 }
 
 void stepTime() {
+    updateSynapses(t);
     updateNeurons(t);
     iT++;
     t = iT * DT;
+}
+
+// ------------------------------------------------------------------------
+// helper getter functions
+// ------------------------------------------------------------------------
+unsigned int* getExcCurrentSpikes() {
+    return glbSpkExc;
+}
+unsigned int* getInhCurrentSpikes() {
+    return glbSpkInh;
+}
+
+void pullExcCurrentSpikesFromDevice() {
+    commandQueue.enqueueReadBuffer(d_glbSpkCntExc, CL_TRUE, 0, 1 * sizeof(unsigned int), glbSpkCntExc);
+}
+void pullInhCurrentSpikesFromDevice() {
+    commandQueue.enqueueReadBuffer(d_glbSpkCntInh, CL_TRUE, 0, 1 * sizeof(unsigned int), glbSpkCntInh);
+}
+
+unsigned int& getInhCurrentSpikeCount() {
+    return glbSpkCntInh[0];
+}
+unsigned int& getExcCurrentSpikeCount() {
+    return glbSpkCntExc[0];
 }
 
 
