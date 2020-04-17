@@ -169,6 +169,58 @@ unsigned int& getExcCurrentSpikeCount() {
     return glbSpkCntExc[0];
 }
 
+// Copying state to device
+
+void copyStateToDevice(bool uninitialisedOnly) {
+    pushExcStateToDevice(uninitialisedOnly);
+    pushInhStateToDevice(uninitialisedOnly);
+    pushExc_ExcStateToDevice(uninitialisedOnly);
+    pushExc_InhStateToDevice(uninitialisedOnly);
+    pushInh_ExcStateToDevice(uninitialisedOnly);
+    pushInh_InhStateToDevice(uninitialisedOnly);
+}
+
+void pushExcStateToDevice(bool uninitialisedOnly) {
+    pushVExcToDevice(uninitialisedOnly);
+    pushUExcToDevice(uninitialisedOnly);
+}
+
+void pushVExcToDevice(bool uninitialisedOnly) {
+    commandQueue.enqueueWriteBuffer(d_VExc, CL_TRUE, 0, 8000 * sizeof(scalar), VExc);
+}
+
+void pushUExcToDevice(bool uninitialisedOnly) {
+    commandQueue.enqueueWriteBuffer(d_UExc, CL_TRUE, 0, 8000 * sizeof(scalar), UExc);
+}
+
+void pushInhStateToDevice(bool uninitialisedOnly) {
+    pushVInhToDevice(uninitialisedOnly);
+    pushUInhToDevice(uninitialisedOnly);
+}
+
+void pushVInhToDevice(bool uninitialisedOnly) {
+    commandQueue.enqueueWriteBuffer(d_VInh, CL_TRUE, 0, 2000 * sizeof(scalar), VInh);
+}
+
+void pushUInhToDevice(bool uninitialisedOnly) {
+    commandQueue.enqueueWriteBuffer(d_UInh, CL_TRUE, 0, 2000 * sizeof(scalar), UInh);
+}
+
+void pushExc_ExcStateToDevice(bool uninitialisedOnly) {
+    commandQueue.enqueueWriteBuffer(d_inSynExc_Exc, CL_TRUE, 0, 8000 * sizeof(float), inSynExc_Exc);
+}
+
+void pushExc_InhStateToDevice(bool uninitialisedOnly) {
+    commandQueue.enqueueWriteBuffer(d_inSynExc_Inh, CL_TRUE, 0, 8000 * sizeof(float), inSynExc_Inh);
+}
+
+void pushInh_ExcStateToDevice(bool uninitialisedOnly) {
+    commandQueue.enqueueWriteBuffer(d_inSynInh_Exc, CL_TRUE, 0, 8000 * sizeof(float), inSynInh_Exc);
+}
+
+void pushInh_InhStateToDevice(bool uninitialisedOnly) {
+    commandQueue.enqueueWriteBuffer(d_inSynInh_Inh, CL_TRUE, 0, 8000 * sizeof(float), inSynInh_Inh);
+}
 
 // ------------------------------------------------------------------------
 // OpenCL functions implementation

@@ -62,7 +62,7 @@ extern "C" {
     EXPORT_VAR cl::CommandQueue commandQueue;
 
     // OpenCL kernels
-    EXPORT_VAR cl::Kernel initKernel;
+    EXPORT_VAR cl::Kernel initializeKernel;
     EXPORT_VAR cl::Kernel preNeuronResetKernel;
     EXPORT_VAR cl::Kernel updateNeuronsKernel;
     EXPORT_FUNC void initUpdateNeuronsKernels();
