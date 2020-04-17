@@ -27,6 +27,7 @@
     <ClCompile Include="neuronUpdate.cc" />
     <ClCompile Include="runner.cc" />
     <ClCompile Include="simulator.cc" />
+    <ClCompile Include="synapseUpdate.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
