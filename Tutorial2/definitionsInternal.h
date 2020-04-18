@@ -58,18 +58,22 @@ extern "C" {
     EXPORT_VAR cl::Context clContext;
     EXPORT_VAR cl::Device clDevice;
     EXPORT_VAR cl::Program initProgram;
-    EXPORT_VAR cl::Program unProgram;
+    EXPORT_VAR cl::Program updateNeuronsProgram;
+    EXPORT_VAR cl::Program updateSynapsesProgram;
     EXPORT_VAR cl::CommandQueue commandQueue;
 
     // OpenCL kernels
     EXPORT_VAR cl::Kernel initializeKernel;
     EXPORT_VAR cl::Kernel preNeuronResetKernel;
     EXPORT_VAR cl::Kernel updateNeuronsKernel;
+    EXPORT_VAR cl::Kernel updatePresynapticKernel;
+    EXPORT_FUNC void initInitializationKernels();
     EXPORT_FUNC void initUpdateNeuronsKernels();
-    EXPORT_FUNC void initInitKernel();
+    EXPORT_FUNC void initUpdateSynapsesKernels();
     // OpenCL kernels sources
     EXPORT_VAR const char* updateNeuronsKernelSource;
     EXPORT_VAR const char* initKernelSource;
+    EXPORT_VAR const char* updateSynapsesKernelSource;
 
 }
 

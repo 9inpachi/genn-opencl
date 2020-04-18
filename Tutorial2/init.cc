@@ -203,7 +203,7 @@ __kernel void initializeKernel(
 )";
 
 // Initialize the initialization kernel
-void initInitKernel() {
+void initInitializationKernels() {
     initializeKernel = cl::Kernel(initProgram, "initializeKernel");
     initializeKernel.setArg(0, d_glbSpkCntExc);
     initializeKernel.setArg(1, d_glbSpkExc);

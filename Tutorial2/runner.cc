@@ -68,9 +68,11 @@ extern "C" {
 // Initializing kernel programs so that they can be used to run the kernels
 void initPrograms() {
     opencl::setUpContext(clContext, clDevice, DEVICE_INDEX);
+
     // Create programs for kernels
     opencl::createProgram(initKernelSource, initProgram, clContext);
-    opencl::createProgram(updateNeuronsKernelSource, unProgram, clContext);
+    opencl::createProgram(updateNeuronsKernelSource, updateNeuronsProgram, clContext);
+    opencl::createProgram(updateSynapsesKernelSource, updateSynapsesProgram, clContext);
     commandQueue = cl::CommandQueue(clContext, clDevice);
 }
 
@@ -134,8 +136,9 @@ void allocateMem() {
     d_indInh_Inh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 550000 * sizeof(uint32_t), indInh_Inh);
 
     // Initializing kernels
-    initInitKernel();
+    initInitializationKernels();
     initUpdateNeuronsKernels();
+    initUpdateSynapsesKernels();
 }
 
 void stepTime() {
