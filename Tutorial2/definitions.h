@@ -80,6 +80,18 @@ extern "C" {
     EXPORT_FUNC unsigned int& getExcCurrentSpikeCount();
     EXPORT_FUNC unsigned int& getInhCurrentSpikeCount();
 
+    // Push functions
+    EXPORT_FUNC void pushExcStateToDevice(bool uninitialisedOnly = false);
+    EXPORT_FUNC void pushInhStateToDevice(bool uninitialisedOnly = false);
+    EXPORT_FUNC void pushExc_ExcStateToDevice(bool uninitialisedOnly = false);
+    EXPORT_FUNC void pushExc_InhStateToDevice(bool uninitialisedOnly = false);
+    EXPORT_FUNC void pushInh_ExcStateToDevice(bool uninitialisedOnly = false);
+    EXPORT_FUNC void pushInh_InhStateToDevice(bool uninitialisedOnly = false);
+    EXPORT_FUNC void pushVExcToDevice(bool uninitialisedOnly = false);
+    EXPORT_FUNC void pushUExcToDevice(bool uninitialisedOnly = false);
+    EXPORT_FUNC void pushVInhToDevice(bool uninitialisedOnly = false);
+    EXPORT_FUNC void pushUInhToDevice(bool uninitialisedOnly = false);
+
     // Runner functions
     EXPORT_FUNC void copyStateToDevice(bool uninitialisedOnly = false);
     EXPORT_FUNC void copyConnectivityToDevice(bool uninitialisedOnly = false);

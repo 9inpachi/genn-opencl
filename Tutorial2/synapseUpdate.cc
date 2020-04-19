@@ -3,22 +3,41 @@
 // Update synapses kernel
 extern "C" const char* updateSynapsesKernelSource = R"(typedef float scalar;
 
+void atomic_add(
+    volatile __global float *source,
+    const float operand
+) {
+    union {
+        unsigned int intVal;
+        float floatVal;
+    } newVal;
+    union {
+        unsigned int intVal;
+        float floatVal;
+    } prevVal;
+ 
+    do {
+        prevVal.floatVal = *source;
+        newVal.floatVal = prevVal.floatVal + operand;
+    } while (atomic_cmpxchg((volatile global unsigned int *)source, prevVal.intVal, newVal.intVal) != prevVal.intVal);
+}
+
 __kernel void updatePresynapticKernel(
     __global unsigned int* dd_glbSpkCntExc,
     __global unsigned int* dd_glbSpkExc,
     __global unsigned int* dd_rowLengthExc_Exc,
-    __global uint32_t* dd_indExc_Exc,
+    __global unsigned int* dd_indExc_Exc,
     __global float* dd_inSynExc_Exc,
     __global unsigned int* dd_rowLengthExc_Inh,
-    __global uint32_t* dd_indExc_Inh,
+    __global unsigned int* dd_indExc_Inh,
     __global float* dd_inSynExc_Inh,
     __global unsigned int* dd_glbSpkCntInh,
     __global unsigned int* dd_glbSpkInh,
     __global unsigned int* dd_rowLengthInh_Exc,
-    __global uint32_t* dd_indInh_Exc,
+    __global unsigned int* dd_indInh_Exc,
     __global float* dd_inSynInh_Exc,
     __global unsigned int* dd_rowLengthInh_Inh,
-    __global uint32_t* dd_indInh_Inh,
+    __global unsigned int* dd_indInh_Inh,
     __global float* dd_inSynInh_Inh,
     float t
 ) {
@@ -164,7 +183,8 @@ __kernel void updatePresynapticKernel(
 // Initialize the synapses update kernels
 void initUpdateSynapsesKernels() {
     updatePresynapticKernel = cl::Kernel(updateSynapsesProgram, "updatePresynapticKernel");
-    updatePresynapticKernel.setArg(0, d_glbSpkCntExc);
+    cl_int err;
+    err = updatePresynapticKernel.setArg(0, d_glbSpkCntExc);
     updatePresynapticKernel.setArg(1, d_glbSpkExc);
     updatePresynapticKernel.setArg(2, d_rowLengthExc_Exc);
     updatePresynapticKernel.setArg(3, d_indExc_Exc);
@@ -184,6 +204,6 @@ void initUpdateSynapsesKernels() {
 
 void updateSynapses(float t) {
     updatePresynapticKernel.setArg(16, t);
-    commandQueue.enqueueNDRangeKernel(updatePresynapticKernel, cl::NullRange, cl::NDRange(78, 1), cl::NDRange(32, 1));
+    commandQueue.enqueueNDRangeKernel(updatePresynapticKernel, cl::NullRange, cl::NDRange(78), cl::NDRange(32));
     commandQueue.finish();
 }

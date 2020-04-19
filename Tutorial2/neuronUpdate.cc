@@ -172,11 +172,12 @@ __kernel void updateNeuronsKernel(
 // Initialize the neuronUpdate kernels
 void initUpdateNeuronsKernels() {
     preNeuronResetKernel = cl::Kernel(updateNeuronsProgram, "preNeuronResetKernel");
-    preNeuronResetKernel.setArg(0, d_glbSpkCntExc);
+    cl_int err;
+    err = preNeuronResetKernel.setArg(0, d_glbSpkCntExc);
     preNeuronResetKernel.setArg(1, d_glbSpkCntInh);
 
     updateNeuronsKernel = cl::Kernel(updateNeuronsProgram, "updateNeuronsKernel");
-    preNeuronResetKernel.setArg(0, d_glbSpkCntExc);
+    err = preNeuronResetKernel.setArg(0, d_glbSpkCntExc);
     preNeuronResetKernel.setArg(1, d_glbSpkExc);
     preNeuronResetKernel.setArg(2, d_VExc);
     preNeuronResetKernel.setArg(3, d_UExc);
@@ -192,10 +193,10 @@ void initUpdateNeuronsKernels() {
 }
 
 void updateNeurons(float t) {
-    commandQueue.enqueueNDRangeKernel(preNeuronResetKernel, cl::NullRange, cl::NDRange(1, 1), cl::NDRange(32, 1));
+    commandQueue.enqueueNDRangeKernel(preNeuronResetKernel, cl::NullRange, cl::NDRange(1), cl::NDRange(32));
     commandQueue.finish();
 
     updateNeuronsKernel.setArg(13, t);
-    commandQueue.enqueueNDRangeKernel(updateNeuronsKernel, cl::NullRange, cl::NDRange(157, 1), cl::NDRange(64, 1));
+    commandQueue.enqueueNDRangeKernel(updateNeuronsKernel, cl::NullRange, cl::NDRange(157), cl::NDRange(64));
     commandQueue.finish();
 }

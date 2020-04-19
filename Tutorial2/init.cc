@@ -4,12 +4,7 @@
 // Initialize kernel
 extern "C" const char* initKernelSource = R"(typedef float scalar;
 
-#define CLRNG_SINGLE_PRECISION
-#include <clRNG/philox432.clh>
-#include <cstdint>
-
 __kernel void initializeRNGKernel(
-    __global clrngPhilox432HostStream *streams,
     unsigned int deviceRNGSeed
 ) {
 
@@ -23,9 +18,9 @@ __kernel void initializeKernel(
     __global float* dd_inSynInh_Exc,
     __global float* dd_inSynExc_Exc,
     __global unsigned int* dd_rowLengthExc_Exc,
-    __global uint32_t* dd_indExc_Exc,
+    __global unsigned int* dd_indExc_Exc,
     __global unsigned int* dd_rowLengthInh_Exc,
-    __global uint32_t* dd_indInh_Exc,
+    __global unsigned int* dd_indInh_Exc,
     __global unsigned int* dd_glbSpkCntInh,
     __global unsigned int* dd_glbSpkInh,
     __global scalar* dd_VInh,
@@ -33,9 +28,9 @@ __kernel void initializeKernel(
     __global float* dd_inSynInh_Inh,
     __global float* dd_inSynExc_Inh,
     __global unsigned int* dd_rowLengthExc_Inh,
-    __global uint32_t* dd_indExc_Inh,
+    __global unsigned int* dd_indExc_Inh,
     __global unsigned int* dd_rowLengthInh_Inh,
-    __global uint32_t* dd_indInh_Inh,
+    __global unsigned int* dd_indInh_Inh,
     unsigned int deviceRNGSeed
 ) {
     size_t groupId = get_group_id(0);
@@ -107,7 +102,7 @@ __kernel void initializeKernel(
                 int nextJ;
                 do {
                    const scalar u = 1.0;
-                   nextJ = prevJ + (1 + (int)(logf(u) * (-9.49122158102990454e+00f)));
+                   nextJ = prevJ + (1 + (int)(log(u) * (-9.49122158102990454e+00f)));
                 } while(nextJ == lid);
                 prevJ = nextJ;
                 if(prevJ < 8000) {
@@ -133,7 +128,7 @@ __kernel void initializeKernel(
                 int nextJ;
                 do {
                    const scalar u = 1.0;
-                   nextJ = prevJ + (1 + (int)(logf(u) * (-9.49122158102990454e+00f)));
+                   nextJ = prevJ + (1 + (int)(log(u) * (-9.49122158102990454e+00f)));
                 } while(nextJ == lid);
                 prevJ = nextJ;
                 if(prevJ < 2000) {
@@ -159,7 +154,7 @@ __kernel void initializeKernel(
                 int nextJ;
                 do {
                    const scalar u = 1.0;
-                   nextJ = prevJ + (1 + (int)(logf(u) * (-9.49122158102990454e+00f)));
+                   nextJ = prevJ + (1 + (int)(log(u) * (-9.49122158102990454e+00f)));
                 } while(nextJ == lid);
                 prevJ = nextJ;
                 if(prevJ < 8000) {
@@ -185,7 +180,7 @@ __kernel void initializeKernel(
                 int nextJ;
                 do {
                    const scalar u = 1.0;
-                   nextJ = prevJ + (1 + (int)(logf(u) * (-9.49122158102990454e+00f)));
+                   nextJ = prevJ + (1 + (int)(log(u) * (-9.49122158102990454e+00f)));
                 } while(nextJ == lid);
                 prevJ = nextJ;
                 if(prevJ < 2000) {
@@ -205,7 +200,8 @@ __kernel void initializeKernel(
 // Initialize the initialization kernel
 void initInitializationKernels() {
     initializeKernel = cl::Kernel(initProgram, "initializeKernel");
-    initializeKernel.setArg(0, d_glbSpkCntExc);
+    cl_int err;
+    err = initializeKernel.setArg(0, d_glbSpkCntExc);
     initializeKernel.setArg(1, d_glbSpkExc);
     initializeKernel.setArg(2, d_VExc);
     initializeKernel.setArg(3, d_UExc);
@@ -232,7 +228,7 @@ void initialize() {
     initializeKernel.setArg(20, deviceRNGSeed);
 
     // 471 - global size | 64 - local size
-    commandQueue.enqueueNDRangeKernel(initializeKernel, cl::NullRange, cl::NDRange(471, 1), cl::NDRange(64, 1));
+    commandQueue.enqueueNDRangeKernel(initializeKernel, cl::NullRange, cl::NDRange(471), cl::NDRange(64));
     commandQueue.finish();
 }
 

@@ -2,8 +2,29 @@
 #include <iostream>
 
 extern "C" {
+    // OpenCL variables
+    cl::Context clContext;
+    cl::Device clDevice;
+    cl::CommandQueue commandQueue;
+
+    // OpenCL programs
+    cl::Program initProgram;
+    cl::Program updateNeuronsProgram;
+    cl::Program updateSynapsesProgram;
+
+    // OpenCL kernels
+    cl::Kernel initializeKernel;
+    cl::Kernel preNeuronResetKernel;
+    cl::Kernel updateNeuronsKernel;
+    cl::Kernel updatePresynapticKernel;
+}
+
+extern "C" {
     unsigned long long iT;
     float t;
+
+    clrngPhilox432Stream* rng;
+    cl::Buffer d_rng;
 
     // Buffers and host variables
     // ------------------------------------------------------------------------
@@ -86,8 +107,8 @@ void allocateMem() {
     // ------------------------------------------------------------------------
     glbSpkCntExc = (unsigned int*)malloc(1 * sizeof(unsigned int));
     d_glbSpkCntExc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1 * sizeof(unsigned int), glbSpkCntExc);
-    glbSpkExc = (unsigned int*)malloc(1 * sizeof(unsigned int));
-    d_glbSpkExc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1 * sizeof(unsigned int), glbSpkExc);
+    glbSpkExc = (unsigned int*)malloc(8000 * sizeof(unsigned int));
+    d_glbSpkExc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 8000 * sizeof(unsigned int), glbSpkExc);
     VExc = (scalar*)malloc(8000 * sizeof(scalar));
     d_VExc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 8000 * sizeof(scalar), VExc);
     UExc = (scalar*)malloc(8000 * sizeof(scalar));
@@ -189,11 +210,15 @@ void pushExcStateToDevice(bool uninitialisedOnly) {
 }
 
 void pushVExcToDevice(bool uninitialisedOnly) {
-    commandQueue.enqueueWriteBuffer(d_VExc, CL_TRUE, 0, 8000 * sizeof(scalar), VExc);
+    if (!uninitialisedOnly) {
+        commandQueue.enqueueWriteBuffer(d_VExc, CL_TRUE, 0, 8000 * sizeof(scalar), VExc);
+    }
 }
 
 void pushUExcToDevice(bool uninitialisedOnly) {
-    commandQueue.enqueueWriteBuffer(d_UExc, CL_TRUE, 0, 8000 * sizeof(scalar), UExc);
+    if (!uninitialisedOnly) {
+        commandQueue.enqueueWriteBuffer(d_UExc, CL_TRUE, 0, 8000 * sizeof(scalar), UExc);
+    }
 }
 
 void pushInhStateToDevice(bool uninitialisedOnly) {
@@ -202,27 +227,39 @@ void pushInhStateToDevice(bool uninitialisedOnly) {
 }
 
 void pushVInhToDevice(bool uninitialisedOnly) {
-    commandQueue.enqueueWriteBuffer(d_VInh, CL_TRUE, 0, 2000 * sizeof(scalar), VInh);
+    if (!uninitialisedOnly) {
+        commandQueue.enqueueWriteBuffer(d_VInh, CL_TRUE, 0, 2000 * sizeof(scalar), VInh);
+    }
 }
 
 void pushUInhToDevice(bool uninitialisedOnly) {
-    commandQueue.enqueueWriteBuffer(d_UInh, CL_TRUE, 0, 2000 * sizeof(scalar), UInh);
+    if (!uninitialisedOnly) {
+        commandQueue.enqueueWriteBuffer(d_UInh, CL_TRUE, 0, 2000 * sizeof(scalar), UInh);
+    }
 }
 
 void pushExc_ExcStateToDevice(bool uninitialisedOnly) {
-    commandQueue.enqueueWriteBuffer(d_inSynExc_Exc, CL_TRUE, 0, 8000 * sizeof(float), inSynExc_Exc);
+    if (!uninitialisedOnly) {
+        commandQueue.enqueueWriteBuffer(d_inSynExc_Exc, CL_TRUE, 0, 8000 * sizeof(float), inSynExc_Exc);
+    }
 }
 
 void pushExc_InhStateToDevice(bool uninitialisedOnly) {
-    commandQueue.enqueueWriteBuffer(d_inSynExc_Inh, CL_TRUE, 0, 8000 * sizeof(float), inSynExc_Inh);
+    if (!uninitialisedOnly) {
+        commandQueue.enqueueWriteBuffer(d_inSynExc_Inh, CL_TRUE, 0, 8000 * sizeof(float), inSynExc_Inh);
+    }
 }
 
 void pushInh_ExcStateToDevice(bool uninitialisedOnly) {
-    commandQueue.enqueueWriteBuffer(d_inSynInh_Exc, CL_TRUE, 0, 8000 * sizeof(float), inSynInh_Exc);
+    if (!uninitialisedOnly) {
+        commandQueue.enqueueWriteBuffer(d_inSynInh_Exc, CL_TRUE, 0, 8000 * sizeof(float), inSynInh_Exc);
+    }
 }
 
 void pushInh_InhStateToDevice(bool uninitialisedOnly) {
-    commandQueue.enqueueWriteBuffer(d_inSynInh_Inh, CL_TRUE, 0, 8000 * sizeof(float), inSynInh_Inh);
+    if (!uninitialisedOnly) {
+        commandQueue.enqueueWriteBuffer(d_inSynInh_Inh, CL_TRUE, 0, 8000 * sizeof(float), inSynInh_Inh);
+    }
 }
 
 // ------------------------------------------------------------------------
