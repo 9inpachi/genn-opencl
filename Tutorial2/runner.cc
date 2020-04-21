@@ -67,22 +67,22 @@ extern "C" {
     const unsigned int maxRowLengthExc_Exc = 953;
     unsigned int* rowLengthExc_Exc;
     cl::Buffer d_rowLengthExc_Exc;
-    uint32_t* indExc_Exc;
+    unsigned int* indExc_Exc;
     cl::Buffer d_indExc_Exc;
     const unsigned int maxRowLengthExc_Inh = 279;
     unsigned int* rowLengthExc_Inh;
     cl::Buffer d_rowLengthExc_Inh;
-    uint32_t* indExc_Inh;
+    unsigned int* indExc_Inh;
     cl::Buffer d_indExc_Inh;
     const unsigned int maxRowLengthInh_Exc = 946;
     unsigned int* rowLengthInh_Exc;
     cl::Buffer d_rowLengthInh_Exc;
-    uint32_t* indInh_Exc;
+    unsigned int* indInh_Exc;
     cl::Buffer d_indInh_Exc;
     const unsigned int maxRowLengthInh_Inh = 275;
     unsigned int* rowLengthInh_Inh;
     cl::Buffer d_rowLengthInh_Inh;
-    uint32_t* indInh_Inh;
+    unsigned int* indInh_Inh;
     cl::Buffer d_indInh_Inh;
 }
 
@@ -141,20 +141,20 @@ void allocateMem() {
     // ------------------------------------------------------------------------
     rowLengthExc_Exc = (unsigned int*)malloc(8000 * sizeof(unsigned int));
     d_rowLengthExc_Exc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 8000 * sizeof(unsigned int), rowLengthExc_Exc);
-    indExc_Exc = (uint32_t*)malloc(7624000 * sizeof(uint32_t));
-    d_indExc_Exc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 7624000 * sizeof(uint32_t), indExc_Exc);
+    indExc_Exc = (unsigned int*)malloc(7624000 * sizeof(unsigned int));
+    d_indExc_Exc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 7624000 * sizeof(unsigned int), indExc_Exc);
     rowLengthExc_Inh = (unsigned int*)malloc(8000 * sizeof(unsigned int));
     d_rowLengthExc_Inh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 8000 * sizeof(unsigned int), rowLengthExc_Inh);
-    indExc_Inh = (uint32_t*)malloc(2232000 * sizeof(uint32_t));
-    d_indExc_Inh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 2232000 * sizeof(uint32_t), indExc_Inh);
+    indExc_Inh = (unsigned int*)malloc(2232000 * sizeof(unsigned int));
+    d_indExc_Inh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 2232000 * sizeof(unsigned int), indExc_Inh);
     rowLengthInh_Exc = (unsigned int*)malloc(2000 * sizeof(unsigned int));
     d_rowLengthInh_Exc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 2000 * sizeof(unsigned int), rowLengthInh_Exc);
-    indInh_Exc = (uint32_t*)malloc(1892000 * sizeof(uint32_t));
-    d_indInh_Exc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1892000 * sizeof(uint32_t), indInh_Exc);
+    indInh_Exc = (unsigned int*)malloc(1892000 * sizeof(unsigned int));
+    d_indInh_Exc = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1892000 * sizeof(unsigned int), indInh_Exc);
     rowLengthInh_Inh = (unsigned int*)malloc(2000 * sizeof(unsigned int));
     d_rowLengthInh_Inh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 2000 * sizeof(unsigned int), rowLengthInh_Inh);
-    indInh_Inh = (uint32_t*)malloc(550000 * sizeof(uint32_t));
-    d_indInh_Inh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 550000 * sizeof(uint32_t), indInh_Inh);
+    indInh_Inh = (unsigned int*)malloc(550000 * sizeof(unsigned int));
+    d_indInh_Inh = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 550000 * sizeof(unsigned int), indInh_Inh);
 
     // Initializing kernels
     initInitializationKernels();

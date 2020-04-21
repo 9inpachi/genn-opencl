@@ -23,10 +23,6 @@ extern "C" {
     EXPORT_VAR float t;
 
     // ------------------------------------------------------------------------
-    // remote neuron groups
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
     // local neuron groups
     // ------------------------------------------------------------------------
     #define spikeCount_Exc glbSpkCntExc[0]
@@ -61,16 +57,16 @@ extern "C" {
     // ------------------------------------------------------------------------
     EXPORT_VAR const unsigned int maxRowLengthExc_Exc;
     EXPORT_VAR unsigned int* rowLengthExc_Exc;
-    EXPORT_VAR uint32_t* indExc_Exc;
+    EXPORT_VAR unsigned int* indExc_Exc;
     EXPORT_VAR const unsigned int maxRowLengthExc_Inh;
     EXPORT_VAR unsigned int* rowLengthExc_Inh;
-    EXPORT_VAR uint32_t* indExc_Inh;
+    EXPORT_VAR unsigned int* indExc_Inh;
     EXPORT_VAR const unsigned int maxRowLengthInh_Exc;
     EXPORT_VAR unsigned int* rowLengthInh_Exc;
-    EXPORT_VAR uint32_t* indInh_Exc;
+    EXPORT_VAR unsigned int* indInh_Exc;
     EXPORT_VAR const unsigned int maxRowLengthInh_Inh;
     EXPORT_VAR unsigned int* rowLengthInh_Inh;
-    EXPORT_VAR uint32_t* indInh_Inh;
+    EXPORT_VAR unsigned int* indInh_Inh;
 
     // Synapse variables
     EXPORT_FUNC void pullExcCurrentSpikesFromDevice();
