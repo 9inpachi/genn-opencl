@@ -47,7 +47,11 @@ extern "C" {
     EXPORT_VAR cl::Buffer d_rowLengthInh_Inh;
     EXPORT_VAR cl::Buffer d_indInh_Inh;
 
+    // ------------------------------------------------------------------------
     // OpenCL variables
+    // ------------------------------------------------------------------------
+
+    // OpenCL context, device, programs and commandQueue
     EXPORT_VAR cl::Context clContext;
     EXPORT_VAR cl::Device clDevice;
     EXPORT_VAR cl::Program initProgram;
