@@ -11,10 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{91BB0123-6251-4506-8194-8736B4EB1F4A}</ProjectGuid>
+    <ProjectGuid>{2CEF0D8D-C61D-41D4-925B-F1201AD247F1}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
-    <ClCompile Include="simulator.cc" />
+    <ClCompile Include="test.cc" />
+    <ClCompile Include="$(GTEST_DIR)/src/gtest-all.cc" />
+    <ClCompile Include="$(GTEST_DIR)/src/gtest_main.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -34,7 +36,7 @@
   <PropertyGroup>
     <OutDir>./</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+    <TargetName>test</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -44,7 +46,7 @@
       <FunctionLevelLinking Condition="'$(Configuration)'=='Release'">true</FunctionLevelLinking>
       <IntrinsicFunctions Condition="'$(Configuration)'=='Release'">true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>decode_matrix_globalg_ragged_pre_CODE</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>decode_matrix_globalg_ragged_pre_CODE;$(GTEST_DIR);$(GTEST_DIR)/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

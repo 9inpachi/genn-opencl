@@ -15,7 +15,7 @@ suite of minimal models with known analytic outcomes that are used for continuou
 
 // **NOTE** base-class for simulation tests must be
 // included after auto-generated globals are includes
-#include "../../utils/simulation_test_decoder_matrix.h"
+#include "../utils/simulation_test_decoder_matrix.h"
 
 //----------------------------------------------------------------------------
 // SimTest

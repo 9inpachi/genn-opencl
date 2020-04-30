@@ -1,5 +1,4 @@
 #include "definitionsInternal.h"
-#include <iostream>
 
 extern "C" {
     // OpenCL variables
@@ -65,9 +64,6 @@ void opencl::setUpContext(cl::Context& context, cl::Device& device, const int de
         device = devices[deviceIndex]; // We will perform our operations using this device
     }
     
-    std::cout << "DEVICE: ";
-    std::cout << device.getInfo<CL_DEVICE_NAME>() << std::endl;
-
     context = cl::Context(device);
 }
 

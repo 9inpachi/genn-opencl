@@ -3,20 +3,20 @@
 
 extern "C" const char* updateSynapsesProgramSrc = R"(typedef float scalar;
 
-void atomic_add_f(volatile local float *source, const float operand) {
+void atomic_add_f(volatile __local float *source, const float operand) {
     union { unsigned int intVal; float floatVal; } newVal;
     union { unsigned int intVal; float floatVal; } prevVal;
     do {
         prevVal.floatVal = *source;
         newVal.floatVal = prevVal.floatVal + operand;
     }
-    while (atomic_cmpxchg((volatile local unsigned int *)source, prevVal.intVal, newVal.intVal) != prevVal.intVal);
+    while (atomic_cmpxchg((volatile __local unsigned int *)source, prevVal.intVal, newVal.intVal) != prevVal.intVal);
 }
 
 __kernel void updatePresynapticKernel(__global unsigned int* d_glbSpkCntPre, __global unsigned int* d_glbSpkPre, __global unsigned int* d_inSynSyn, __global unsigned int* d_indSyn, __global unsigned int* d_rowLengthSyn, float t) {
     size_t groupId = get_group_id(0);
-    size_t localId = get_group_id(0);
-    const unsigned int id = 32 * groupId + localId; 
+    const size_t localId = get_local_id(0);
+    const unsigned int id = get_global_id(0);
     __local float shLg[32];
     __local unsigned int shSpk[32];
     // Syn
@@ -51,7 +51,6 @@ __kernel void updatePresynapticKernel(__global unsigned int* d_glbSpkCntPre, __g
 // Initialize the synapse update kernel(s)
 void updateSynapsesProgramKernels() {
     updatePresynapticKernel = cl::Kernel(updateSynapsesProgram, "updatePresynapticKernel");
-    std::string err = opencl::clGetErrorString(updatePresynapticKernel.setArg(0, d_glbSpkCntPre));
     CHECK_OPENCL_ERRORS(updatePresynapticKernel.setArg(0, d_glbSpkCntPre));
     CHECK_OPENCL_ERRORS(updatePresynapticKernel.setArg(1, d_glbSpkPre));
     CHECK_OPENCL_ERRORS(updatePresynapticKernel.setArg(2, d_inSynSyn));
@@ -59,10 +58,10 @@ void updateSynapsesProgramKernels() {
     CHECK_OPENCL_ERRORS(updatePresynapticKernel.setArg(4, d_rowLengthSyn));
 }
 
-void updateSynapses(float t) {
+void updateSynapses(float) {
      {
         CHECK_OPENCL_ERRORS(updatePresynapticKernel.setArg(5, t));
-        std::string err = opencl::clGetErrorString(commandQueue.enqueueNDRangeKernel(updatePresynapticKernel, cl::NullRange, cl::NDRange(32)));
-        err = opencl::clGetErrorString(commandQueue.finish());
+        CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(updatePresynapticKernel, cl::NullRange, cl::NDRange(32)));
+        CHECK_OPENCL_ERRORS(commandQueue.finish());
     }
 }

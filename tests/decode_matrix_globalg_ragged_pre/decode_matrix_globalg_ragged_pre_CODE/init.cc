@@ -5,8 +5,8 @@ extern "C" const char* initProgramSrc = R"(typedef float scalar;
 
 __kernel void initializeKernel(__global scalar* d_glbSpkCntPost, __global scalar* d_glbSpkCntPre, __global scalar* d_glbSpkPost, __global scalar* d_glbSpkPre, __global scalar* d_inSynSyn, __global scalar* d_xPost, unsigned int deviceRNGSeed) {
     size_t groupId = get_group_id(0);
-    size_t localId = get_local_id(0);
-    const unsigned int id = 32 * groupId + localId;
+    const size_t localId = get_local_id(0);
+    const unsigned int id = get_global_id(0);
     // ------------------------------------------------------------------------
     // Local neuron groups
     // Post
@@ -70,4 +70,6 @@ void initialize() {
 // Initialize all OpenCL elements
 void initializeSparse() {
     copyStateToDevice(true);
+    copyConnectivityToDevice(true);
+    
 }
