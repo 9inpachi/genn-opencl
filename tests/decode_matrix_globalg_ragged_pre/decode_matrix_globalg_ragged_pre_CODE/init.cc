@@ -5,8 +5,8 @@ extern "C" const char* initProgramSrc = R"(typedef float scalar;
 
 __kernel void initializeKernel(__global scalar* d_glbSpkCntPost, __global scalar* d_glbSpkCntPre, __global scalar* d_glbSpkPost, __global scalar* d_glbSpkPre, __global scalar* d_inSynSyn, __global scalar* d_xPost, unsigned int deviceRNGSeed) {
     size_t groupId = get_group_id(0);
-    const size_t localId = get_local_id(0);
-    const unsigned int id = get_global_id(0);
+    size_t localId = get_local_id(0);
+    const unsigned int id = 32 * groupId + localId;
     // ------------------------------------------------------------------------
     // Local neuron groups
     // Post
@@ -61,11 +61,9 @@ void initProgramKernels() {
 
 void initialize() {
     unsigned int deviceRNGSeed = 0;
-
-    const cl::NDRange global(64, 1);
-    const cl::NDRange local(32, 1);
+    
     CHECK_OPENCL_ERRORS(initializeKernel.setArg(6, deviceRNGSeed));
-    CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(initializeKernel, cl::NDRange(0), global, local));
+    CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(initializeKernel, cl::NullRange, cl::NDRange(32)));
     CHECK_OPENCL_ERRORS(commandQueue.finish());
 }
 
@@ -73,5 +71,4 @@ void initialize() {
 void initializeSparse() {
     copyStateToDevice(true);
     copyConnectivityToDevice(true);
-    
 }

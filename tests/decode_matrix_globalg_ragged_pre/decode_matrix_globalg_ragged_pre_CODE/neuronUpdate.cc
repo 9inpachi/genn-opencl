@@ -5,7 +5,7 @@ extern "C" const char* updateNeuronsProgramSrc = R"(typedef float scalar;
 
 __kernel void preNeuronResetKernel(__global unsigned int* d_glbSpkCntPost, __global unsigned int* d_glbSpkCntPre) {
     size_t groupId = get_group_id(0);
-    const size_t localId = get_local_id(0);
+    size_t localId = get_local_id(0);
     unsigned int id = 32 * groupId + localId;
     if(id == 0) {
         d_glbSpkCntPost[0] = 0;
@@ -17,8 +17,8 @@ __kernel void preNeuronResetKernel(__global unsigned int* d_glbSpkCntPost, __glo
 
 __kernel void updateNeuronsKernel(const float DT, __global unsigned int* d_glbSpkCntPre, __global unsigned int* d_glbSpkPre, __global scalar* d_inSynSyn, __global scalar* d_xPost, float t) {
     size_t groupId = get_group_id(0);
-    const size_t localId = get_local_id(0);
-    const unsigned int id = get_global_id(0); 
+    size_t localId = get_local_id(0);
+    const unsigned int id = 32 * groupId + localId; 
     volatile __local unsigned int shSpk[32];
     volatile __local unsigned int shPosSpk;
     volatile __local unsigned int shSpkCount;
@@ -93,18 +93,14 @@ void updateNeuronsProgramKernels() {
     CHECK_OPENCL_ERRORS(updateNeuronsKernel.setArg(4, d_xPost));
 }
 
-void updateNeurons(float) {
+void updateNeurons(float t) {
      {
-        const cl::NDRange global(32, 1);
-        const cl::NDRange local(32, 1);
-        CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(preNeuronResetKernel, cl::NDRange(0), global, local));
+        CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(preNeuronResetKernel, cl::NullRange, cl::NDRange(32)));
         CHECK_OPENCL_ERRORS(commandQueue.finish());
     }
      {
-        const cl::NDRange global(64, 1);
-        const cl::NDRange local(32, 1);
         CHECK_OPENCL_ERRORS(updateNeuronsKernel.setArg(5, t));
-        CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(updateNeuronsKernel, cl::NDRange(0), global, local));
+        CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(updateNeuronsKernel, cl::NullRange, cl::NDRange(32)));
         CHECK_OPENCL_ERRORS(commandQueue.finish());
     }
 }
