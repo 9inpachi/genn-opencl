@@ -41,6 +41,10 @@ __kernel void updatePresynapticKernel(__global unsigned int* d_glbSpkCntPre, __g
         barrier(CLK_LOCAL_MEM_FENCE);
         if (localId < 4) {
             d_inSynSyn[localId] += shLg[localId];
+
+            printf("shLg[%d] = %f\n", localId, shLg[localId]);
+            printf("d_inSynSyn[%d] = %f\n", localId, d_inSynSyn[localId]);
+            printf("d_inSynSyn[%d] (%f) + shLg[%d] (%f) = %f\n", localId, d_inSynSyn[localId], localId, shLg[localId], d_inSynSyn[localId] + shLg[localId]);
         }
     }
     
@@ -60,8 +64,10 @@ void updateSynapsesProgramKernels() {
 
 void updateSynapses(float) {
      {
+        const cl::NDRange global(32, 1);
+        const cl::NDRange local(32, 1);
         CHECK_OPENCL_ERRORS(updatePresynapticKernel.setArg(5, t));
-        CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(updatePresynapticKernel, cl::NullRange, cl::NDRange(32)));
+        CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(updatePresynapticKernel, cl::NDRange(0), global, local));
         CHECK_OPENCL_ERRORS(commandQueue.finish());
     }
 }

@@ -95,12 +95,16 @@ void updateNeuronsProgramKernels() {
 
 void updateNeurons(float) {
      {
-        CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(preNeuronResetKernel, cl::NullRange, cl::NDRange(32)));
+        const cl::NDRange global(32, 1);
+        const cl::NDRange local(32, 1);
+        CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(preNeuronResetKernel, cl::NDRange(0), global, local));
         CHECK_OPENCL_ERRORS(commandQueue.finish());
     }
      {
+        const cl::NDRange global(64, 1);
+        const cl::NDRange local(32, 1);
         CHECK_OPENCL_ERRORS(updateNeuronsKernel.setArg(5, t));
-        CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(updateNeuronsKernel, cl::NullRange, cl::NDRange(32)));
+        CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(updateNeuronsKernel, cl::NDRange(0), global, local));
         CHECK_OPENCL_ERRORS(commandQueue.finish());
     }
 }

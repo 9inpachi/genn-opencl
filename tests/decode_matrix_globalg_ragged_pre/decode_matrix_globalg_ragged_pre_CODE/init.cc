@@ -61,9 +61,11 @@ void initProgramKernels() {
 
 void initialize() {
     unsigned int deviceRNGSeed = 0;
-    
+
+    const cl::NDRange global(64, 1);
+    const cl::NDRange local(32, 1);
     CHECK_OPENCL_ERRORS(initializeKernel.setArg(6, deviceRNGSeed));
-    CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(initializeKernel, cl::NullRange, cl::NDRange(32)));
+    CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(initializeKernel, cl::NDRange(0), global, local));
     CHECK_OPENCL_ERRORS(commandQueue.finish());
 }
 
