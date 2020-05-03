@@ -6,7 +6,7 @@
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #include <CL/cl.hpp>
 
-#define DEVICE_INDEX 0
+#define DEVICE_INDEX 1
 
 // ------------------------------------------------------------------------
 // Helper macro for error-checking OpenCL calls
@@ -23,7 +23,7 @@
 namespace opencl {
     void setUpContext(cl::Context& context, cl::Device& device, const int deviceIndex);
     void createProgram(const char* kernelSource, cl::Program& program, cl::Context& context);
-    char* clGetErrorString(cl_int error);
+    const char* clGetErrorString(cl_int error);
 }
 
 extern "C" {

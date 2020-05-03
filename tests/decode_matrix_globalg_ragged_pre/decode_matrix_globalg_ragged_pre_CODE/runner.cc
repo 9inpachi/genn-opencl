@@ -47,9 +47,9 @@ void opencl::setUpContext(cl::Context& context, cl::Device& device, const int de
     
     // Getting all devices and putting them into a single vector
     std::vector<cl::Device> devices;
-    for (int i = 0; i < platforms.size(); i++) {
+    for (const auto& platform : platforms) {
         std::vector<cl::Device> platformDevices;
-        platforms[i].getDevices(CL_DEVICE_TYPE_ALL, &platformDevices);
+        platform.getDevices(CL_DEVICE_TYPE_ALL, &platformDevices);
         devices.insert(devices.end(), platformDevices.begin(), platformDevices.end());
     }
     
@@ -75,7 +75,7 @@ void opencl::createProgram(const char* kernelSource, cl::Program& program, cl::C
 }
 
 // Get OpenCL error as string
-char* opencl::clGetErrorString(cl_int error) {
+const char* opencl::clGetErrorString(cl_int error) {
     switch(error) {
         case -68: return "CL_INVALID_DEVICE_PARTITION_COUNT";
         case -67: return "CL_INVALID_LINKER_OPTIONS";
