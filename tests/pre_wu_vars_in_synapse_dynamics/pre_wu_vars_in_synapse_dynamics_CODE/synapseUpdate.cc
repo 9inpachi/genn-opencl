@@ -31,8 +31,7 @@ __kernel void updateSynapseDynamicsKernel(__global float* d_inSynsyn, __global u
         const unsigned int preReadDelayOffset = ((spkQuePtrpre + 1) % 21) * 10;
         if (id < d_synRemapsyn[0]) {
             const unsigned int s = d_synRemapsyn[1 + id];
-            d_wsyn[s]= d_ssyn[preReadDelayOffset + s / 1];
-        }
+            d_wsyn[s]= d_ssyn[preReadDelayOffset + s / 1];}
     }
     
 }
@@ -47,6 +46,7 @@ void updateSynapsesProgramKernels() {
     CHECK_OPENCL_ERRORS(updateSynapseDynamicsKernel.setArg(2, d_ssyn));
     CHECK_OPENCL_ERRORS(updateSynapseDynamicsKernel.setArg(3, d_synRemapsyn));
     CHECK_OPENCL_ERRORS(updateSynapseDynamicsKernel.setArg(4, d_wsyn));
+    CHECK_OPENCL_ERRORS(updateSynapseDynamicsKernel.setArg(5, spkQuePtrpre));
 }
 
 void updateSynapses(float t) {

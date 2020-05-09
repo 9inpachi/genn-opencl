@@ -107,6 +107,7 @@ void updateNeuronsProgramKernels() {
     preNeuronResetKernel = cl::Kernel(updateNeuronsProgram, "preNeuronResetKernel");
     CHECK_OPENCL_ERRORS(preNeuronResetKernel.setArg(0, d_glbSpkCntpost));
     CHECK_OPENCL_ERRORS(preNeuronResetKernel.setArg(1, d_glbSpkCntpre));
+    CHECK_OPENCL_ERRORS(preNeuronResetKernel.setArg(2, spkQuePtrpre));
     
     updateNeuronsKernel = cl::Kernel(updateNeuronsProgram, "updateNeuronsKernel");
     CHECK_OPENCL_ERRORS(updateNeuronsKernel.setArg(0, DT));
@@ -116,6 +117,7 @@ void updateNeuronsProgramKernels() {
     CHECK_OPENCL_ERRORS(updateNeuronsKernel.setArg(4, d_glbSpkpre));
     CHECK_OPENCL_ERRORS(updateNeuronsKernel.setArg(5, d_inSynsyn));
     CHECK_OPENCL_ERRORS(updateNeuronsKernel.setArg(6, d_ssyn));
+    CHECK_OPENCL_ERRORS(updateNeuronsKernel.setArg(7, spkQuePtrpre));
 }
 
 void updateNeurons(float t) {
