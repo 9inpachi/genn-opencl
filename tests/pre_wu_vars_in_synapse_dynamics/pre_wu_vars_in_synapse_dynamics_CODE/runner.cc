@@ -1,6 +1,7 @@
 #include "definitionsInternal.h"
 
-extern "C" {// OpenCL variables
+extern "C" {
+// OpenCL variables
 cl::Context clContext;
 cl::Device clDevice;
 cl::CommandQueue commandQueue;
