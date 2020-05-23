@@ -12,26 +12,31 @@ if (testsDirOption !== -1 && process.argv[testsDirOption + 1]) {
 let allTests = {};
 
 function readTestResults(testDir, callback) {
+    let fileCount = 0;
     fs.readdir(testDir, function (err, testFolders) {
         if (err) console.log(err.message);
         else {
             testFolders.forEach(function (folderName) {
-                const testPath = testDir + '/' + folderName;
-                if (fs.existsSync(testPath + '/test_results.xml')) {
-                    fs.readFile(testPath + '/test_results.xml', function (err, data) {
-                        xml2js.parseString(data, function (err, xmlData) {
-                            if (err) console.log(err);
-                            allTests[testPath] = parseInt(xmlData['testsuites']['$']['failures']);
-                            if (Object.keys(allTests).length === testFolders.length) {
-                                callback(allTests);
-                            }
+                if (!folderName.includes('.')) {
+                    const testPath = testDir + '/' + folderName;
+                    if (fs.existsSync(testPath + '/test_results.xml')) {
+                        fs.readFile(testPath + '/test_results.xml', function (err, data) {
+                            xml2js.parseString(data, function (err, xmlData) {
+                                if (err) console.log(err);
+                                allTests[testPath] = parseInt(xmlData['testsuites']['$']['failures']);
+                                if (Object.keys(allTests).length === (testFolders.length - fileCount)) {
+                                    callback(allTests);
+                                }
+                            });
                         });
-                    });
-                } else {
-                    allTests[testPath] = 'NONE';
-                    if (Object.keys(allTests).length === testFolders.length) {
-                        callback(allTests);
+                    } else {
+                        allTests[testPath] = 'NONE';
+                        if (Object.keys(allTests).length === (testFolders.length - fileCount)) {
+                            callback(allTests);
+                        }
                     }
+                } else {
+                    fileCount++;
                 }
             });
         }
