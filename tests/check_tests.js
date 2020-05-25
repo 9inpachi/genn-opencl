@@ -17,7 +17,7 @@ function readTestResults(testDir, callback) {
         if (err) console.log(err.message);
         else {
             testFolders.forEach(function (folderName) {
-                if (!folderName.includes('.')) {
+                if (fs.lstatSync(testDir + '/' + folderName).isDirectory()) {
                     const testPath = testDir + '/' + folderName;
                     if (fs.existsSync(testPath + '/test_results.xml')) {
                         fs.readFile(testPath + '/test_results.xml', function (err, data) {
@@ -70,7 +70,7 @@ readTestResults(TESTS_DIR, function (allTests) {
 
 
     console.log('TOTAL: \t\t' + total + '\t100%');
-    console.log('PASSED: \t' + passed.length + '\t' + (passed.length / total * 100) + '%');
-    console.log('FAILED: \t' + failed.length + '\t' + (failed.length / total * 100) + '%');
-    console.log('NO RESULT: \t' + noResult.length + '\t' + (noResult.length / total * 100) + '%');
+    console.log('PASSED: \t' + passed.length + '\t' + parseInt(passed.length / total * 100) + '%');
+    console.log('FAILED: \t' + failed.length + '\t' + parseInt(failed.length / total * 100) + '%');
+    console.log('NO RESULT: \t' + noResult.length + '\t' + parseInt(noResult.length / total * 100) + '%');
 });
