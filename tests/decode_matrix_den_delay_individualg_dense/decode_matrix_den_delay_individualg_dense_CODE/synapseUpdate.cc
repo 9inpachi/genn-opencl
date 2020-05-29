@@ -27,7 +27,7 @@ __kernel void preSynapseResetKernel(volatile unsigned int denDelayPtrSyn) {
     }
 }
 
-__kernel void updatePresynapticKernel(__global scalar* d_dSyn, __global scalar* d_denDelaySyn, __global scalar* d_gSyn, __global unsigned int* d_glbSpkCntPre, __global unsigned int* d_glbSpkPre, __global float* d_inSynSyn, volatile unsigned int denDelayPtrSyn, float t) {
+__kernel void updatePresynapticKernel(__global unsigned char* d_dSyn, __global scalar* d_denDelaySyn, __global scalar* d_gSyn, __global unsigned int* d_glbSpkCntPre, __global unsigned int* d_glbSpkPre, __global float* d_inSynSyn, volatile unsigned int denDelayPtrSyn, float t) {
     const size_t localId = get_local_id(0);
     const unsigned int id = get_global_id(0);
     __local unsigned int shSpk[32];
@@ -52,8 +52,7 @@ __kernel void updatePresynapticKernel(__global scalar* d_dSyn, __global scalar* 
                     // only work on existing neurons
                     if (id < 1) {
                         unsigned int synAddress = (shSpk[j] * 1) + id;
-                        unsigned int tempSum = denDelayPtrSyn + d_dSyn[synAddress];
-                        atomic_add_f_global(&d_denDelaySyn[((tempSum % 10) * 1) + id], d_gSyn[synAddress]);
+                        atomic_add_f_global(&d_denDelaySyn[(((denDelayPtrSyn + d_dSyn[synAddress]) % 10) * 1) + id], d_gSyn[synAddress]);
                     }
                 }
             }
@@ -71,11 +70,9 @@ __kernel void updatePresynapticKernel(__global scalar* d_dSyn, __global scalar* 
 
 // Initialize the synapse update kernel(s)
 void updateSynapsesProgramKernels() {
-    cl_int err;
-    preSynapseResetKernel = cl::Kernel(updateSynapsesProgram, "preSynapseResetKernel", &err);
+    preSynapseResetKernel = cl::Kernel(updateSynapsesProgram, "preSynapseResetKernel");
     CHECK_OPENCL_ERRORS(preSynapseResetKernel.setArg(0, denDelayPtrSyn));
-
-    updatePresynapticKernel = cl::Kernel(updateSynapsesProgram, "updatePresynapticKernel", &err);
+    updatePresynapticKernel = cl::Kernel(updateSynapsesProgram, "updatePresynapticKernel");
     CHECK_OPENCL_ERRORS(updatePresynapticKernel.setArg(0, d_dSyn));
     CHECK_OPENCL_ERRORS(updatePresynapticKernel.setArg(1, d_denDelaySyn));
     CHECK_OPENCL_ERRORS(updatePresynapticKernel.setArg(2, d_gSyn));

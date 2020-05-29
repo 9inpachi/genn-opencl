@@ -36,9 +36,9 @@ __kernel void updateNeuronsKernel(__global scalar* d_denDelaySyn, __global unsig
             float Isyn = 0;
             // pull inSyn values in a coalesced access
             float linSynSyn = d_inSynSyn[id];
-            float denDelayFrontSyn = d_denDelaySyn[(denDelayPtrSyn * 1) + id];
-            linSynSyn += denDelayFrontSyn;
-            denDelayFrontSyn = 0.000000f;
+            __global float *denDelayFrontSyn = &d_denDelaySyn[(denDelayPtrSyn * 1) + id];
+            linSynSyn += *denDelayFrontSyn;
+            *denDelayFrontSyn = 0.000000f;
             Isyn += linSynSyn; linSynSyn = 0;
             // calculate membrane potential
             lx= Isyn;
@@ -103,6 +103,7 @@ void updateNeurons(float t) {
         const cl::NDRange localWorkSize(32, 1);
         CHECK_OPENCL_ERRORS(commandQueue.enqueueNDRangeKernel(preNeuronResetKernel, cl::NullRange, globalWorkSize, localWorkSize));
         CHECK_OPENCL_ERRORS(commandQueue.finish());
+        
     }
      {
         CHECK_OPENCL_ERRORS(updateNeuronsKernel.setArg(5, denDelayPtrSyn));
