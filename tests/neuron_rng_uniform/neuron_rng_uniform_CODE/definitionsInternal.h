@@ -1,5 +1,6 @@
 #pragma once
 #include "definitions.h"
+#include "clRNG/mrg31k3p.h"
 
 #pragma warning(disable: 4297)
 // OpenCL includes
@@ -73,6 +74,7 @@ extern "C" {
 EXPORT_VAR cl::Buffer d_glbSpkCntPop;
 EXPORT_VAR cl::Buffer d_glbSpkPop;
 EXPORT_VAR cl::Buffer d_xPop;
+EXPORT_VAR cl::Buffer d_rngPop;
 
 // ------------------------------------------------------------------------
 // postsynaptic variables

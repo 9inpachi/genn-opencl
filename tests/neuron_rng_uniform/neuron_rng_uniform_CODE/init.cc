@@ -1,6 +1,5 @@
 #include "definitionsInternal.h"
 
-
 extern "C" const char* initProgramSrc = R"(typedef float scalar;
 
 #define fmodf fmod

@@ -71,7 +71,7 @@ void opencl::setUpContext(cl::Context& context, cl::Device& device, const int de
 void opencl::createProgram(const char* kernelSource, cl::Program& program, cl::Context& context) {
     // Reading the kernel source for execution
     program = cl::Program(context, kernelSource, true);
-    program.build("-cl-std=CL1.2");
+    program.build("-I neuron_rng_uniform_CODE/clRNG/include");
 }
 
 // Get OpenCL error as string
@@ -169,6 +169,7 @@ unsigned int* glbSpkPop;
 cl::Buffer d_glbSpkPop;
 scalar* xPop;
 cl::Buffer d_xPop;
+cl::Buffer d_rngPop;
 
 // ------------------------------------------------------------------------
 // postsynaptic variables
@@ -301,6 +302,10 @@ void allocateMem() {
     d_glbSpkPop = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1000 * sizeof(unsigned int), glbSpkPop);
     xPop = (scalar*)calloc(1000, sizeof(scalar));
     d_xPop = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1000 * sizeof(scalar), xPop);
+    clrngStatus err;
+    size_t rngPopBufferSize = 1000 * sizeof(clrngMrg31k3pStream);
+    clrngMrg31k3pStream* rngPop = clrngMrg31k3pCreateStreams(NULL, 32, &rngPopBufferSize, &err);
+    d_rngPop = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, rngPopBufferSize, rngPop);
     
     // ------------------------------------------------------------------------
     // postsynaptic variables
