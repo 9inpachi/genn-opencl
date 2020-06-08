@@ -1,6 +1,6 @@
 #pragma once
 #include "definitions.h"
-#include "clRNG/mrg31k3p.h"
+#include "clRNG/lfsr113.h"
 
 #pragma warning(disable: 4297)
 // OpenCL includes

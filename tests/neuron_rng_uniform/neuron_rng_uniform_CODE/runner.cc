@@ -302,9 +302,9 @@ void allocateMem() {
     d_glbSpkPop = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1000 * sizeof(unsigned int), glbSpkPop);
     xPop = (scalar*)calloc(1000, sizeof(scalar));
     d_xPop = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1000 * sizeof(scalar), xPop);
-    clrngStatus err;
-    size_t rngPopBufferSize = 1000 * sizeof(clrngMrg31k3pStream);
-    clrngMrg31k3pStream* rngPop = clrngMrg31k3pCreateStreams(NULL, 32, &rngPopBufferSize, &err);
+    clrngStatus err = CLRNG_SUCCESS;
+    size_t rngPopBufferSize = 1000 * 32;
+    clrngLfsr113Stream* rngPop = clrngLfsr113CreateStreams(NULL, 32 * 32, &rngPopBufferSize, &err);
     d_rngPop = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, rngPopBufferSize, rngPop);
     
     // ------------------------------------------------------------------------
