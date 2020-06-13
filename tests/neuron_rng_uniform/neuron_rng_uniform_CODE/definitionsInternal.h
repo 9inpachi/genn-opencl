@@ -1,11 +1,11 @@
 #pragma once
 #include "definitions.h"
-#include "clRNG/lfsr113.h"
 
 #pragma warning(disable: 4297)
 // OpenCL includes
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #include <CL/cl.hpp>
+#include "clRNG/lfsr113.h"
 
 #define DEVICE_INDEX 0
 
@@ -22,9 +22,9 @@
 // OpenCL functions declaration
 // ------------------------------------------------------------------------
 namespace opencl {
-    void setUpContext(cl::Context& context, cl::Device& device, const int deviceIndex);
-    void createProgram(const char* kernelSource, cl::Program& program, cl::Context& context);
-    const char* clGetErrorString(cl_int error);
+void setUpContext(cl::Context& context, cl::Device& device, const int deviceIndex);
+void createProgram(const char* kernelSource, cl::Program& program, cl::Context& context);
+const char* clGetErrorString(cl_int error);
 }
 
 extern "C" {
@@ -73,8 +73,9 @@ extern "C" {
 // ------------------------------------------------------------------------
 EXPORT_VAR cl::Buffer d_glbSpkCntPop;
 EXPORT_VAR cl::Buffer d_glbSpkPop;
-EXPORT_VAR cl::Buffer d_xPop;
+EXPORT_VAR clrngLfsr113Stream* rngPop;
 EXPORT_VAR cl::Buffer d_rngPop;
+EXPORT_VAR cl::Buffer d_xPop;
 
 // ------------------------------------------------------------------------
 // postsynaptic variables

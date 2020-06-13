@@ -3,9 +3,6 @@
 
 extern "C" const char* updateNeuronsProgramSrc = R"(typedef float scalar;
 
-#define CLRNG_SINGLE_PRECISION
-#include <clRNG/lfsr113.clh>
-
 #define fmodf fmod
 #define DT 0.100000f
 
@@ -16,6 +13,9 @@ extern "C" const char* updateNeuronsProgramSrc = R"(typedef float scalar;
 // support code for neuron groups
 
 // support code for synapse groups
+
+#define CLRNG_SINGLE_PRECISION
+#include <clRNG/lfsr113.clh>
 
 __kernel void preNeuronResetKernel(__global unsigned int* d_glbSpkCntPop) {
     const size_t localId = get_local_id(0);
@@ -33,15 +33,17 @@ __kernel void updateNeuronsKernel(__global clrngLfsr113HostStream* d_rngPop, __g
     if(id < 1024) {
         
         if(id < 1000) {
+            clrngLfsr113Stream localStream;
+            clrngLfsr113CopyOverStreamsFromGlobal(1, &localStream, &d_rngPop[id]);
+            
             scalar lx = d_xPop[id];
             
             // calculate membrane potential
-            clrngLfsr113Stream localStream;
-            clrngLfsr113CopyOverStreamsFromGlobal(1, &localStream, &d_rngPop[id]);
             lx= clrngLfsr113RandomU01(&localStream);
-            clrngLfsr113CopyOverStreamsToGlobal(1, &d_rngPop[id], &localStream);
             
             d_xPop[id] = lx;
+            
+            clrngLfsr113CopyOverStreamsToGlobal(1, &d_rngPop[id], &localStream);
         }
         barrier(CLK_LOCAL_MEM_FENCE);
     }
@@ -52,6 +54,7 @@ __kernel void updateNeuronsKernel(__global clrngLfsr113HostStream* d_rngPop, __g
 // Initialize the neuronUpdate kernels
 void updateNeuronsProgramKernels() {
     preNeuronResetKernel = cl::Kernel(updateNeuronsProgram, "preNeuronResetKernel");
+    updateNeuronsProgram.getBuildInfo<CL_PROGRAM_BUILD_LOG>(clDevice);
     CHECK_OPENCL_ERRORS(preNeuronResetKernel.setArg(0, d_glbSpkCntPop));
     
     updateNeuronsKernel = cl::Kernel(updateNeuronsProgram, "updateNeuronsKernel");

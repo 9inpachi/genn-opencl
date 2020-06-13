@@ -43,15 +43,15 @@
       <IntrinsicFunctions Condition="'$(Configuration)'=='Release'">true</IntrinsicFunctions>
       <PreprocessorDefinitions Condition="'$(Configuration)'=='Release'">WIN32;WIN64;NDEBUG;_CONSOLE;BUILDING_GENERATED_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)'=='Debug'">WIN32;WIN64;_DEBUG;_CONSOLE;BUILDING_GENERATED_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>clRNG\include;$(OPENCL_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(GENN)\include\genn\backends\opencl\clRNG\include;$(OPENCL_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding Condition="'$(Configuration)'=='Release'">true</EnableCOMDATFolding>
       <OptimizeReferences Condition="'$(Configuration)'=='Release'">true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>clRNG\lib;$(OPENCL_PATH)\lib\x64;$(OPENCL_PATH)\lib\x86_64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>clRNG.lib;OpenCL.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OPENCL_PATH)\lib\x64;$(OPENCL_PATH)\lib\x86_64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenCL.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -59,6 +59,12 @@
     <ClCompile Include="synapseUpdate.cc" />
     <ClCompile Include="init.cc" />
     <ClCompile Include="runner.cc" />
+    <ClCompile Include="$(GENN)\src\genn\backends\opencl\clRNG\clRNG.c" />
+    <ClCompile Include="$(GENN)\src\genn\backends\opencl\clRNG\private.c" />
+    <ClCompile Include="$(GENN)\src\genn\backends\opencl\clRNG\mrg32k3a.c" />
+    <ClCompile Include="$(GENN)\src\genn\backends\opencl\clRNG\mrg31k3p.c" />
+    <ClCompile Include="$(GENN)\src\genn\backends\opencl\clRNG\lfsr113.c" />
+    <ClCompile Include="$(GENN)\src\genn\backends\opencl\clRNG\philox432.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

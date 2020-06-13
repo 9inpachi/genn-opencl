@@ -71,7 +71,9 @@ void opencl::setUpContext(cl::Context& context, cl::Device& device, const int de
 void opencl::createProgram(const char* kernelSource, cl::Program& program, cl::Context& context) {
     // Reading the kernel source for execution
     program = cl::Program(context, kernelSource, true);
-    program.build("-I neuron_rng_uniform_CODE/clRNG/include");
+    std::string gennPath = std::getenv("GENN");
+    std::string buildString = "-cl-std=CL1.2 -I " + gennPath + "/include/genn/backends/opencl/clRNG/include";
+    program.build(buildString.c_str());
 }
 
 // Get OpenCL error as string
@@ -167,9 +169,10 @@ unsigned int* glbSpkCntPop;
 cl::Buffer d_glbSpkCntPop;
 unsigned int* glbSpkPop;
 cl::Buffer d_glbSpkPop;
+clrngLfsr113Stream* rngPop;
+cl::Buffer d_rngPop;
 scalar* xPop;
 cl::Buffer d_xPop;
-cl::Buffer d_rngPop;
 
 // ------------------------------------------------------------------------
 // postsynaptic variables
@@ -300,12 +303,11 @@ void allocateMem() {
     d_glbSpkCntPop = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1 * sizeof(unsigned int), glbSpkCntPop);
     glbSpkPop = (unsigned int*)calloc(1000, sizeof(unsigned int));
     d_glbSpkPop = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1000 * sizeof(unsigned int), glbSpkPop);
+    size_t rngPopCount = 1000;
+    rngPop = clrngLfsr113CreateStreams(NULL, 1000, &rngPopCount, NULL);
+    d_rngPop = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, rngPopCount, rngPop);
     xPop = (scalar*)calloc(1000, sizeof(scalar));
     d_xPop = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 1000 * sizeof(scalar), xPop);
-    clrngStatus err = CLRNG_SUCCESS;
-    size_t rngPopBufferSize = 1000 * 32;
-    clrngLfsr113Stream* rngPop = clrngLfsr113CreateStreams(NULL, 32 * 32, &rngPopBufferSize, &err);
-    d_rngPop = cl::Buffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, rngPopBufferSize, rngPop);
     
     // ------------------------------------------------------------------------
     // postsynaptic variables
