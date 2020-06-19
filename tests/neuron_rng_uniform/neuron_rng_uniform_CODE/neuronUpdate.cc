@@ -54,7 +54,6 @@ __kernel void updateNeuronsKernel(__global clrngLfsr113HostStream* d_rngPop, __g
 // Initialize the neuronUpdate kernels
 void updateNeuronsProgramKernels() {
     preNeuronResetKernel = cl::Kernel(updateNeuronsProgram, "preNeuronResetKernel");
-    updateNeuronsProgram.getBuildInfo<CL_PROGRAM_BUILD_LOG>(clDevice);
     CHECK_OPENCL_ERRORS(preNeuronResetKernel.setArg(0, d_glbSpkCntPop));
     
     updateNeuronsKernel = cl::Kernel(updateNeuronsProgram, "updateNeuronsKernel");

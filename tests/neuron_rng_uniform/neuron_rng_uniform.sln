@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "neuron_rng_uniform", "neuron_rng_uniform.vcxproj", "{C3BC6B87-6C1F-4998-ADCD-55FEFE984D0D}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -11,20 +11,33 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "runner", "neuron_rng_unifor
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_DLL|x64 = Debug_DLL|x64
 		Debug|x64 = Debug|x64
+		Release_DLL|x64 = Release_DLL|x64
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C3BC6B87-6C1F-4998-ADCD-55FEFE984D0D}.Debug_DLL|x64.ActiveCfg = Debug|x64
+		{C3BC6B87-6C1F-4998-ADCD-55FEFE984D0D}.Debug_DLL|x64.Build.0 = Debug|x64
 		{C3BC6B87-6C1F-4998-ADCD-55FEFE984D0D}.Debug|x64.ActiveCfg = Debug|x64
 		{C3BC6B87-6C1F-4998-ADCD-55FEFE984D0D}.Debug|x64.Build.0 = Debug|x64
+		{C3BC6B87-6C1F-4998-ADCD-55FEFE984D0D}.Release_DLL|x64.ActiveCfg = Release|x64
+		{C3BC6B87-6C1F-4998-ADCD-55FEFE984D0D}.Release_DLL|x64.Build.0 = Release|x64
 		{C3BC6B87-6C1F-4998-ADCD-55FEFE984D0D}.Release|x64.ActiveCfg = Release|x64
 		{C3BC6B87-6C1F-4998-ADCD-55FEFE984D0D}.Release|x64.Build.0 = Release|x64
+		{BB5B38F9-7D23-481E-B448-C168878BB5FE}.Debug_DLL|x64.ActiveCfg = Debug|x64
+		{BB5B38F9-7D23-481E-B448-C168878BB5FE}.Debug_DLL|x64.Build.0 = Debug|x64
 		{BB5B38F9-7D23-481E-B448-C168878BB5FE}.Debug|x64.ActiveCfg = Debug|x64
 		{BB5B38F9-7D23-481E-B448-C168878BB5FE}.Debug|x64.Build.0 = Debug|x64
+		{BB5B38F9-7D23-481E-B448-C168878BB5FE}.Release_DLL|x64.ActiveCfg = Release|x64
+		{BB5B38F9-7D23-481E-B448-C168878BB5FE}.Release_DLL|x64.Build.0 = Release|x64
 		{BB5B38F9-7D23-481E-B448-C168878BB5FE}.Release|x64.ActiveCfg = Release|x64
 		{BB5B38F9-7D23-481E-B448-C168878BB5FE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0595B6E2-6FDA-42B6-BF32-9E2EC317BD13}
 	EndGlobalSection
 EndGlobal

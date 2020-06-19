@@ -41,9 +41,9 @@
       <Optimization Condition="'$(Configuration)'=='Debug'">Disabled</Optimization>
       <FunctionLevelLinking Condition="'$(Configuration)'=='Release'">true</FunctionLevelLinking>
       <IntrinsicFunctions Condition="'$(Configuration)'=='Release'">true</IntrinsicFunctions>
-      <PreprocessorDefinitions Condition="'$(Configuration)'=='Release'">WIN32;WIN64;NDEBUG;_CONSOLE;BUILDING_GENERATED_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)'=='Debug'">WIN32;WIN64;_DEBUG;_CONSOLE;BUILDING_GENERATED_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(GENN)\include\genn\backends\opencl\clRNG\include;$(OPENCL_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)'=='Release'">_CRT_SECURE_NO_WARNINGS;WIN32;WIN64;NDEBUG;_CONSOLE;BUILDING_GENERATED_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)'=='Debug'">_CRT_SECURE_NO_WARNINGS;WIN32;WIN64;_DEBUG;_CONSOLE;BUILDING_GENERATED_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\clRNG\include;$(OPENCL_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -59,12 +59,14 @@
     <ClCompile Include="synapseUpdate.cc" />
     <ClCompile Include="init.cc" />
     <ClCompile Include="runner.cc" />
-    <ClCompile Include="$(GENN)\src\genn\backends\opencl\clRNG\clRNG.c" />
-    <ClCompile Include="$(GENN)\src\genn\backends\opencl\clRNG\private.c" />
-    <ClCompile Include="$(GENN)\src\genn\backends\opencl\clRNG\mrg32k3a.c" />
-    <ClCompile Include="$(GENN)\src\genn\backends\opencl\clRNG\mrg31k3p.c" />
-    <ClCompile Include="$(GENN)\src\genn\backends\opencl\clRNG\lfsr113.c" />
-    <ClCompile Include="$(GENN)\src\genn\backends\opencl\clRNG\philox432.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ItemGroup Label="clRNG">
+    <ClCompile Include="..\clRNG\clRNG.c" />
+    <ClCompile Include="..\clRNG\private.c" />
+    <ClCompile Include="..\clRNG\mrg32k3a.c" />
+    <ClCompile Include="..\clRNG\mrg31k3p.c" />
+    <ClCompile Include="..\clRNG\lfsr113.c" />
+    <ClCompile Include="..\clRNG\philox432.c" />
+  </ItemGroup>
 </Project>

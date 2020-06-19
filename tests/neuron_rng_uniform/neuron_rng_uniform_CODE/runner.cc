@@ -71,9 +71,7 @@ void opencl::setUpContext(cl::Context& context, cl::Device& device, const int de
 void opencl::createProgram(const char* kernelSource, cl::Program& program, cl::Context& context) {
     // Reading the kernel source for execution
     program = cl::Program(context, kernelSource, true);
-    std::string gennPath = std::getenv("GENN");
-    std::string buildString = "-cl-std=CL1.2 -I " + gennPath + "/include/genn/backends/opencl/clRNG/include";
-    program.build(buildString.c_str());
+    program.build("-cl-std=CL1.2 -I clRNG/include");
 }
 
 // Get OpenCL error as string
