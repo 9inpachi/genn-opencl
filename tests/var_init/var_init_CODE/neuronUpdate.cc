@@ -1,27 +1,28 @@
 #include "definitionsInternal.h"
 #include "supportCode.h"
 
-extern "C" const char* updateNeuronsProgramSrc = R"(#define CLRNG_SINGLE_PRECISION
+extern "C" const char* updateNeuronsProgramSrc = R"(// ------------------------------------------------------------------------
+// C99 sized types
+typedef uchar uint8_t;
+typedef ushort uint16_t;
+typedef uint uint32_t;
+typedef ulong uint64_t;
+typedef char int8_t;
+typedef short int16_t;
+typedef int int32_t;
+typedef long int64_t;
+
+#define CLRNG_SINGLE_PRECISION
 #include <clRNG/lfsr113.clh>
 #include <clRNG/philox432.clh>
 typedef float scalar;
-#define fmodf fmod
 #define DT 0.100000f
 #define TIME_MIN 1.175494351e-38f
 #define TIME_MAX 3.402823466e+38f
 
 // ------------------------------------------------------------------------
-// C99 sized types
-typedef uchar uint8_t;
-typedef ushort uint16_t;
-typedef uint uint32_t;
-typedef char int8_t;
-typedef short int16_t;
-typedef int int32_t;
-
-// ------------------------------------------------------------------------
 // Non-uniform generators
-inline float exponentialDist(clrngLfsr113Stream *rng) {
+inline float exponentialDistLfsr113(clrngLfsr113Stream *rng) {
     while (true) {
         const float u = clrngLfsr113RandomU01(rng);
         if (u != 0.000000f) {
@@ -30,7 +31,7 @@ inline float exponentialDist(clrngLfsr113Stream *rng) {
     }
 }
 
-inline float normalDist(clrngLfsr113Stream *rng) {
+inline float normalDistLfsr113(clrngLfsr113Stream *rng) {
     const float u1 = clrngLfsr113RandomU01(rng);
     const float u2 = clrngLfsr113RandomU01(rng);
     const float r = sqrt(-2.000000f * log(u1));
@@ -38,17 +39,17 @@ inline float normalDist(clrngLfsr113Stream *rng) {
     return r * sin(theta);
 }
 
-inline float logNormalDist(clrngLfsr113Stream *rng, float mean,float stddev)
+inline float logNormalDistLfsr113(clrngLfsr113Stream *rng, float mean,float stddev)
  {
-    return exp(mean + (stddev * normalDist(rng)));
+    return exp(mean + (stddev * normalDistLfsr113(rng)));
 }
 
-inline float gammaDistInternal(clrngLfsr113Stream *rng, float c, float d)
+inline float gammaDistInternalLfsr113(clrngLfsr113Stream *rng, float c, float d)
  {
     float x, v, u;
     while (true) {
         do {
-            x = normalDist(rng);
+            x = normalDistLfsr113(rng);
             v = 1.000000f + c*x;
         }
         while (v <= 0.000000f);
@@ -66,20 +67,82 @@ inline float gammaDistInternal(clrngLfsr113Stream *rng, float c, float d)
     return d*v;
 }
 
-inline float gammaDistFloat(clrngLfsr113Stream *rng, float a)
+inline float gammaDistLfsr113(clrngLfsr113Stream *rng, float a)
  {
     if (a > 1)
      {
         const float u = clrngLfsr113RandomU01 (rng);
         const float d = (1.000000f + a) - 1.000000f / 3.000000f;
         const float c = (1.000000f / 3.000000f) / sqrt(d);
-        return gammaDistInternal(rng, c, d) * pow(u, 1.000000f / a);
+        return gammaDistInternalLfsr113(rng, c, d) * pow(u, 1.000000f / a);
     }
     else
      {
         const float d = a - 1.000000f / 3.000000f;
         const float c = (1.000000f / 3.000000f) / sqrt(d);
-        return gammaDistInternal(rng, c, d);
+        return gammaDistInternalLfsr113(rng, c, d);
+    }
+}
+
+inline float exponentialDistPhilox432(clrngPhilox432Stream *rng) {
+    while (true) {
+        const float u = clrngPhilox432RandomU01(rng);
+        if (u != 0.000000f) {
+            return -log(u);
+        }
+    }
+}
+
+inline float normalDistPhilox432(clrngPhilox432Stream *rng) {
+    const float u1 = clrngPhilox432RandomU01(rng);
+    const float u2 = clrngPhilox432RandomU01(rng);
+    const float r = sqrt(-2.000000f * log(u1));
+    const float theta = 2.000000f * M_PI_F * u2;
+    return r * sin(theta);
+}
+
+inline float logNormalDistPhilox432(clrngPhilox432Stream *rng, float mean,float stddev)
+ {
+    return exp(mean + (stddev * normalDistPhilox432(rng)));
+}
+
+inline float gammaDistInternalPhilox432(clrngPhilox432Stream *rng, float c, float d)
+ {
+    float x, v, u;
+    while (true) {
+        do {
+            x = normalDistPhilox432(rng);
+            v = 1.000000f + c*x;
+        }
+        while (v <= 0.000000f);
+        
+        v = v*v*v;
+        do {
+            u = clrngPhilox432RandomU01(rng);
+        }
+        while (u == 1.000000f);
+        
+        if (u < 1.000000f - 0.033100f*x*x*x*x) break;
+        if (log(u) < 0.500000f*x*x + d*(1.000000f - v + log(v))) break;
+    }
+    
+    return d*v;
+}
+
+inline float gammaDistPhilox432(clrngPhilox432Stream *rng, float a)
+ {
+    if (a > 1)
+     {
+        const float u = clrngPhilox432RandomU01 (rng);
+        const float d = (1.000000f + a) - 1.000000f / 3.000000f;
+        const float c = (1.000000f / 3.000000f) / sqrt(d);
+        return gammaDistInternalPhilox432(rng, c, d) * pow(u, 1.000000f / a);
+    }
+    else
+     {
+        const float d = a - 1.000000f / 3.000000f;
+        const float c = (1.000000f / 3.000000f) / sqrt(d);
+        return gammaDistInternalPhilox432(rng, c, d);
     }
 }
 

@@ -1,27 +1,28 @@
 #include "definitionsInternal.h"
 
 
-extern "C" const char* initProgramSrc = R"(#define CLRNG_SINGLE_PRECISION
+extern "C" const char* initProgramSrc = R"(// ------------------------------------------------------------------------
+// C99 sized types
+typedef uchar uint8_t;
+typedef ushort uint16_t;
+typedef uint uint32_t;
+typedef ulong uint64_t;
+typedef char int8_t;
+typedef short int16_t;
+typedef int int32_t;
+typedef long int64_t;
+
+#define CLRNG_SINGLE_PRECISION
 #include <clRNG/lfsr113.clh>
 #include <clRNG/philox432.clh>
 typedef float scalar;
-#define fmodf fmod
 #define DT 0.100000f
 #define TIME_MIN 1.175494351e-38f
 #define TIME_MAX 3.402823466e+38f
 
 // ------------------------------------------------------------------------
-// C99 sized types
-typedef uchar uint8_t;
-typedef ushort uint16_t;
-typedef uint uint32_t;
-typedef char int8_t;
-typedef short int16_t;
-typedef int int32_t;
-
-// ------------------------------------------------------------------------
 // Non-uniform generators
-inline float exponentialDist(clrngLfsr113Stream *rng) {
+inline float exponentialDistLfsr113(clrngLfsr113Stream *rng) {
     while (true) {
         const float u = clrngLfsr113RandomU01(rng);
         if (u != 0.000000f) {
@@ -30,7 +31,7 @@ inline float exponentialDist(clrngLfsr113Stream *rng) {
     }
 }
 
-inline float normalDist(clrngLfsr113Stream *rng) {
+inline float normalDistLfsr113(clrngLfsr113Stream *rng) {
     const float u1 = clrngLfsr113RandomU01(rng);
     const float u2 = clrngLfsr113RandomU01(rng);
     const float r = sqrt(-2.000000f * log(u1));
@@ -38,17 +39,17 @@ inline float normalDist(clrngLfsr113Stream *rng) {
     return r * sin(theta);
 }
 
-inline float logNormalDist(clrngLfsr113Stream *rng, float mean,float stddev)
+inline float logNormalDistLfsr113(clrngLfsr113Stream *rng, float mean,float stddev)
  {
-    return exp(mean + (stddev * normalDist(rng)));
+    return exp(mean + (stddev * normalDistLfsr113(rng)));
 }
 
-inline float gammaDistInternal(clrngLfsr113Stream *rng, float c, float d)
+inline float gammaDistInternalLfsr113(clrngLfsr113Stream *rng, float c, float d)
  {
     float x, v, u;
     while (true) {
         do {
-            x = normalDist(rng);
+            x = normalDistLfsr113(rng);
             v = 1.000000f + c*x;
         }
         while (v <= 0.000000f);
@@ -66,24 +67,86 @@ inline float gammaDistInternal(clrngLfsr113Stream *rng, float c, float d)
     return d*v;
 }
 
-inline float gammaDistFloat(clrngLfsr113Stream *rng, float a)
+inline float gammaDistLfsr113(clrngLfsr113Stream *rng, float a)
  {
     if (a > 1)
      {
         const float u = clrngLfsr113RandomU01 (rng);
         const float d = (1.000000f + a) - 1.000000f / 3.000000f;
         const float c = (1.000000f / 3.000000f) / sqrt(d);
-        return gammaDistInternal(rng, c, d) * pow(u, 1.000000f / a);
+        return gammaDistInternalLfsr113(rng, c, d) * pow(u, 1.000000f / a);
     }
     else
      {
         const float d = a - 1.000000f / 3.000000f;
         const float c = (1.000000f / 3.000000f) / sqrt(d);
-        return gammaDistInternal(rng, c, d);
+        return gammaDistInternalLfsr113(rng, c, d);
     }
 }
 
-__kernel void initializeKernel(__global scalar* d_constantCurrSource, __global scalar* d_constantDense, __global scalar* d_constantPop, __global scalar* d_exponentialCurrSource, __global scalar* d_exponentialDense, __global scalar* d_exponentialPop, __global scalar* d_gammaCurrSource, __global scalar* d_gammaDense, __global scalar* d_gammaPop, __global unsigned int* d_glbSpkCntPop, __global unsigned int* d_glbSpkCntSpikeSource, __global unsigned int* d_glbSpkPop, __global unsigned int* d_glbSpkSpikeSource, __global scalar* d_inSynDense, __global scalar* d_inSynSparse, __global scalar* d_normalCurrSource, __global scalar* d_normalDense, __global scalar* d_normalPop, __global scalar* d_pconstantDense, __global scalar* d_pconstantSparse, __global scalar* d_pexponentialDense, __global scalar* d_pexponentialSparse, __global scalar* d_pgammaDense, __global scalar* d_pgammaSparse, __global scalar* d_pnormalDense, __global scalar* d_pnormalSparse, __global scalar* d_puniformDense, __global scalar* d_puniformSparse, __global clrngLfsr113HostStream* d_rng, __global scalar* d_uniformCurrSource, __global scalar* d_uniformDense, __global scalar* d_uniformPop, unsigned int deviceRNGSeed) {
+inline float exponentialDistPhilox432(clrngPhilox432Stream *rng) {
+    while (true) {
+        const float u = clrngPhilox432RandomU01(rng);
+        if (u != 0.000000f) {
+            return -log(u);
+        }
+    }
+}
+
+inline float normalDistPhilox432(clrngPhilox432Stream *rng) {
+    const float u1 = clrngPhilox432RandomU01(rng);
+    const float u2 = clrngPhilox432RandomU01(rng);
+    const float r = sqrt(-2.000000f * log(u1));
+    const float theta = 2.000000f * M_PI_F * u2;
+    return r * sin(theta);
+}
+
+inline float logNormalDistPhilox432(clrngPhilox432Stream *rng, float mean,float stddev)
+ {
+    return exp(mean + (stddev * normalDistPhilox432(rng)));
+}
+
+inline float gammaDistInternalPhilox432(clrngPhilox432Stream *rng, float c, float d)
+ {
+    float x, v, u;
+    while (true) {
+        do {
+            x = normalDistPhilox432(rng);
+            v = 1.000000f + c*x;
+        }
+        while (v <= 0.000000f);
+        
+        v = v*v*v;
+        do {
+            u = clrngPhilox432RandomU01(rng);
+        }
+        while (u == 1.000000f);
+        
+        if (u < 1.000000f - 0.033100f*x*x*x*x) break;
+        if (log(u) < 0.500000f*x*x + d*(1.000000f - v + log(v))) break;
+    }
+    
+    return d*v;
+}
+
+inline float gammaDistPhilox432(clrngPhilox432Stream *rng, float a)
+ {
+    if (a > 1)
+     {
+        const float u = clrngPhilox432RandomU01 (rng);
+        const float d = (1.000000f + a) - 1.000000f / 3.000000f;
+        const float c = (1.000000f / 3.000000f) / sqrt(d);
+        return gammaDistInternalPhilox432(rng, c, d) * pow(u, 1.000000f / a);
+    }
+    else
+     {
+        const float d = a - 1.000000f / 3.000000f;
+        const float c = (1.000000f / 3.000000f) / sqrt(d);
+        return gammaDistInternalPhilox432(rng, c, d);
+    }
+}
+
+__kernel void initializeKernel(__global scalar* d_constantCurrSource, __global scalar* d_constantDense, __global scalar* d_constantPop, __global scalar* d_exponentialCurrSource, __global scalar* d_exponentialDense, __global scalar* d_exponentialPop, __global scalar* d_gammaCurrSource, __global scalar* d_gammaDense, __global scalar* d_gammaPop, __global unsigned int* d_glbSpkCntPop, __global unsigned int* d_glbSpkCntSpikeSource, __global unsigned int* d_glbSpkPop, __global unsigned int* d_glbSpkSpikeSource, __global scalar* d_inSynDense, __global scalar* d_inSynSparse, __global scalar* d_normalCurrSource, __global scalar* d_normalDense, __global scalar* d_normalPop, __global scalar* d_pconstantDense, __global scalar* d_pconstantSparse, __global scalar* d_pexponentialDense, __global scalar* d_pexponentialSparse, __global scalar* d_pgammaDense, __global scalar* d_pgammaSparse, __global scalar* d_pnormalDense, __global scalar* d_pnormalSparse, __global scalar* d_puniformDense, __global scalar* d_puniformSparse, __global clrngPhilox432HostStream* d_rng, __global scalar* d_uniformCurrSource, __global scalar* d_uniformDense, __global scalar* d_uniformPop, unsigned int deviceRNGSeed) {
     const size_t localId = get_local_id(0);
     const unsigned int id = get_global_id(0);
     // ------------------------------------------------------------------------
@@ -92,9 +155,12 @@ __kernel void initializeKernel(__global scalar* d_constantCurrSource, __global s
     if(id < 10016) {
         // only do this for existing neurons
         if(id < 10000) {
-            clrngLfsr113Stream localStream;
-            clrngLfsr113CopyOverStreamsFromGlobal(1, &localStream, &d_rng[0]);
-            
+            clrngPhilox432Stream localStream;
+            clrngPhilox432CopyOverStreamsFromGlobal(1, &localStream, &d_rng[0]);
+            const clrngPhilox432Counter steps = {{0, id}, {0, 0}};
+            localStream.current.ctr = clrngPhilox432Add(localStream.current.ctr, steps);
+            localStream.current.deckIndex = 0;
+            clrngPhilox432GenerateDeck(&localStream.current);
             if(id == 0) {
                 d_glbSpkCntPop[0] = 0;
             }
@@ -104,16 +170,16 @@ __kernel void initializeKernel(__global scalar* d_constantCurrSource, __global s
             }
              {
                 const scalar scale = (1.00000000000000000e+00f) - (0.00000000000000000e+00f);
-                d_uniformPop[id] = (0.00000000000000000e+00f) + (clrngLfsr113RandomU01(&localStream) * scale);
+                d_uniformPop[id] = (0.00000000000000000e+00f) + (clrngPhilox432RandomU01(&localStream) * scale);
             }
              {
-                d_normalPop[id] = (0.00000000000000000e+00f) + (normalDist(&localStream) * (1.00000000000000000e+00f));
+                d_normalPop[id] = (0.00000000000000000e+00f) + (normalDistPhilox432(&localStream) * (1.00000000000000000e+00f));
             }
              {
-                d_exponentialPop[id] = (1.00000000000000000e+00f) * exponentialDist(&localStream);
+                d_exponentialPop[id] = (1.00000000000000000e+00f) * exponentialDistPhilox432(&localStream);
             }
              {
-                d_gammaPop[id] = (1.00000000000000000e+00f) * gammaDistFloat(&localStream, (4.00000000000000000e+00f));
+                d_gammaPop[id] = (1.00000000000000000e+00f) * gammaDistPhilox432(&localStream, (4.00000000000000000e+00f));
             }
             d_inSynSparse[id] = 0.000000f;
              {
@@ -121,16 +187,16 @@ __kernel void initializeKernel(__global scalar* d_constantCurrSource, __global s
             }
              {
                 const scalar scale = (1.00000000000000000e+00f) - (0.00000000000000000e+00f);
-                d_puniformSparse[id] = (0.00000000000000000e+00f) + (clrngLfsr113RandomU01(&localStream) * scale);
+                d_puniformSparse[id] = (0.00000000000000000e+00f) + (clrngPhilox432RandomU01(&localStream) * scale);
             }
              {
-                d_pnormalSparse[id] = (0.00000000000000000e+00f) + (normalDist(&localStream) * (1.00000000000000000e+00f));
+                d_pnormalSparse[id] = (0.00000000000000000e+00f) + (normalDistPhilox432(&localStream) * (1.00000000000000000e+00f));
             }
              {
-                d_pexponentialSparse[id] = (1.00000000000000000e+00f) * exponentialDist(&localStream);
+                d_pexponentialSparse[id] = (1.00000000000000000e+00f) * exponentialDistPhilox432(&localStream);
             }
              {
-                d_pgammaSparse[id] = (1.00000000000000000e+00f) * gammaDistFloat(&localStream, (4.00000000000000000e+00f));
+                d_pgammaSparse[id] = (1.00000000000000000e+00f) * gammaDistPhilox432(&localStream, (4.00000000000000000e+00f));
             }
             d_inSynDense[id] = 0.000000f;
              {
@@ -138,16 +204,16 @@ __kernel void initializeKernel(__global scalar* d_constantCurrSource, __global s
             }
              {
                 const scalar scale = (1.00000000000000000e+00f) - (0.00000000000000000e+00f);
-                d_puniformDense[id] = (0.00000000000000000e+00f) + (clrngLfsr113RandomU01(&localStream) * scale);
+                d_puniformDense[id] = (0.00000000000000000e+00f) + (clrngPhilox432RandomU01(&localStream) * scale);
             }
              {
-                d_pnormalDense[id] = (0.00000000000000000e+00f) + (normalDist(&localStream) * (1.00000000000000000e+00f));
+                d_pnormalDense[id] = (0.00000000000000000e+00f) + (normalDistPhilox432(&localStream) * (1.00000000000000000e+00f));
             }
              {
-                d_pexponentialDense[id] = (1.00000000000000000e+00f) * exponentialDist(&localStream);
+                d_pexponentialDense[id] = (1.00000000000000000e+00f) * exponentialDistPhilox432(&localStream);
             }
              {
-                d_pgammaDense[id] = (1.00000000000000000e+00f) * gammaDistFloat(&localStream, (4.00000000000000000e+00f));
+                d_pgammaDense[id] = (1.00000000000000000e+00f) * gammaDistPhilox432(&localStream, (4.00000000000000000e+00f));
             }
             // current source variables
              {
@@ -155,18 +221,17 @@ __kernel void initializeKernel(__global scalar* d_constantCurrSource, __global s
             }
              {
                 const scalar scale = (1.00000000000000000e+00f) - (0.00000000000000000e+00f);
-                d_uniformCurrSource[id] = (0.00000000000000000e+00f) + (clrngLfsr113RandomU01(&localStream) * scale);
+                d_uniformCurrSource[id] = (0.00000000000000000e+00f) + (clrngPhilox432RandomU01(&localStream) * scale);
             }
              {
-                d_normalCurrSource[id] = (0.00000000000000000e+00f) + (normalDist(&localStream) * (1.00000000000000000e+00f));
+                d_normalCurrSource[id] = (0.00000000000000000e+00f) + (normalDistPhilox432(&localStream) * (1.00000000000000000e+00f));
             }
              {
-                d_exponentialCurrSource[id] = (1.00000000000000000e+00f) * exponentialDist(&localStream);
+                d_exponentialCurrSource[id] = (1.00000000000000000e+00f) * exponentialDistPhilox432(&localStream);
             }
              {
-                d_gammaCurrSource[id] = (1.00000000000000000e+00f) * gammaDistFloat(&localStream, (4.00000000000000000e+00f));
+                d_gammaCurrSource[id] = (1.00000000000000000e+00f) * gammaDistPhilox432(&localStream, (4.00000000000000000e+00f));
             }
-            clrngLfsr113CopyOverStreamsToGlobal(1, &d_rng[0], &localStream);
         }
     }
     
@@ -191,28 +256,30 @@ __kernel void initializeKernel(__global scalar* d_constantCurrSource, __global s
         const unsigned int lid = id - 10048;
         // only do this for existing postsynaptic neurons
         if(lid < 10000) {
-            clrngLfsr113Stream localStream;
-            clrngLfsr113CopyOverStreamsFromGlobal(1, &localStream, &d_rng[0]);
-            
+            clrngPhilox432Stream localStream;
+            clrngPhilox432CopyOverStreamsFromGlobal(1, &localStream, &d_rng[0]);
+            const clrngPhilox432Counter steps = {{0, id}, {0, 0}};
+            localStream.current.ctr = clrngPhilox432Add(localStream.current.ctr, steps);
+            localStream.current.deckIndex = 0;
+            clrngPhilox432GenerateDeck(&localStream.current);
             for(unsigned int i = 0; i < 1; i++) {
                  {
                     d_constantDense[(i * 10000) + lid] = (1.30000000000000000e+01f);
                 }
                  {
                     const scalar scale = (1.00000000000000000e+00f) - (0.00000000000000000e+00f);
-                    d_uniformDense[(i * 10000) + lid] = (0.00000000000000000e+00f) + (clrngLfsr113RandomU01(&localStream) * scale);
+                    d_uniformDense[(i * 10000) + lid] = (0.00000000000000000e+00f) + (clrngPhilox432RandomU01(&localStream) * scale);
                 }
                  {
-                    d_normalDense[(i * 10000) + lid] = (0.00000000000000000e+00f) + (normalDist(&localStream) * (1.00000000000000000e+00f));
+                    d_normalDense[(i * 10000) + lid] = (0.00000000000000000e+00f) + (normalDistPhilox432(&localStream) * (1.00000000000000000e+00f));
                 }
                  {
-                    d_exponentialDense[(i * 10000) + lid] = (1.00000000000000000e+00f) * exponentialDist(&localStream);
+                    d_exponentialDense[(i * 10000) + lid] = (1.00000000000000000e+00f) * exponentialDistPhilox432(&localStream);
                 }
                  {
-                    d_gammaDense[(i * 10000) + lid] = (1.00000000000000000e+00f) * gammaDistFloat(&localStream, (4.00000000000000000e+00f));
+                    d_gammaDense[(i * 10000) + lid] = (1.00000000000000000e+00f) * gammaDistPhilox432(&localStream, (4.00000000000000000e+00f));
                 }
             }
-            clrngLfsr113CopyOverStreamsToGlobal(1, &d_rng[0], &localStream);
         }
     }
     
@@ -221,15 +288,18 @@ __kernel void initializeKernel(__global scalar* d_constantCurrSource, __global s
     // Synapse groups with sparse connectivity
 }
 
-__kernel void initializeSparseKernel(__global scalar* d_constantSparse, __global scalar* d_exponentialSparse, __global scalar* d_gammaSparse, __global unsigned int* d_indSparse, __global scalar* d_normalSparse, __global scalar* d_pconstantDense, __global scalar* d_pconstantSparse, __global scalar* d_pexponentialDense, __global scalar* d_pexponentialSparse, __global scalar* d_pgammaDense, __global scalar* d_pgammaSparse, __global scalar* d_pnormalDense, __global scalar* d_pnormalSparse, __global scalar* d_puniformDense, __global scalar* d_puniformSparse, __global clrngLfsr113HostStream* d_rng, __global unsigned int* d_rowLengthSparse, __global scalar* d_uniformSparse) {
+__kernel void initializeSparseKernel(__global scalar* d_constantSparse, __global scalar* d_exponentialSparse, __global scalar* d_gammaSparse, __global unsigned int* d_indSparse, __global scalar* d_normalSparse, __global scalar* d_pconstantDense, __global scalar* d_pconstantSparse, __global scalar* d_pexponentialDense, __global scalar* d_pexponentialSparse, __global scalar* d_pgammaDense, __global scalar* d_pgammaSparse, __global scalar* d_pnormalDense, __global scalar* d_pnormalSparse, __global scalar* d_puniformDense, __global scalar* d_puniformSparse, __global clrngPhilox432HostStream* d_rng, __global unsigned int* d_rowLengthSparse, __global scalar* d_uniformSparse) {
     const size_t localId = get_local_id(0);
     const unsigned int id = get_global_id(0);
     __local unsigned int shRowLength[32];
     // Sparse
     if(id < 10016) {
-        clrngLfsr113Stream localStream;
-        clrngLfsr113CopyOverStreamsFromGlobal(1, &localStream, &d_rng[0]);
-        
+        clrngPhilox432Stream localStream;
+        clrngPhilox432CopyOverStreamsFromGlobal(1, &localStream, &d_rng[0]);
+        const clrngPhilox432Counter steps = {{0, id}, {0, 0}};
+        localStream.current.ctr = clrngPhilox432Add(localStream.current.ctr, steps);
+        localStream.current.deckIndex = 0;
+        clrngPhilox432GenerateDeck(&localStream.current);
         unsigned int idx = id;
         for(unsigned int r = 0; r < 1; r++) {
             const unsigned numRowsInBlock = (r == 0) ? 1 : 32;
@@ -245,22 +315,21 @@ __kernel void initializeSparseKernel(__global scalar* d_constantSparse, __global
                     }
                      {
                         const scalar scale = (1.00000000000000000e+00f) - (0.00000000000000000e+00f);
-                        d_uniformSparse[(((r * 32) + i) * 10000) + id] = (0.00000000000000000e+00f) + (clrngLfsr113RandomU01(&localStream) * scale);
+                        d_uniformSparse[(((r * 32) + i) * 10000) + id] = (0.00000000000000000e+00f) + (clrngPhilox432RandomU01(&localStream) * scale);
                     }
                      {
-                        d_normalSparse[(((r * 32) + i) * 10000) + id] = (0.00000000000000000e+00f) + (normalDist(&localStream) * (1.00000000000000000e+00f));
+                        d_normalSparse[(((r * 32) + i) * 10000) + id] = (0.00000000000000000e+00f) + (normalDistPhilox432(&localStream) * (1.00000000000000000e+00f));
                     }
                      {
-                        d_exponentialSparse[(((r * 32) + i) * 10000) + id] = (1.00000000000000000e+00f) * exponentialDist(&localStream);
+                        d_exponentialSparse[(((r * 32) + i) * 10000) + id] = (1.00000000000000000e+00f) * exponentialDistPhilox432(&localStream);
                     }
                      {
-                        d_gammaSparse[(((r * 32) + i) * 10000) + id] = (1.00000000000000000e+00f) * gammaDistFloat(&localStream, (4.00000000000000000e+00f));
+                        d_gammaSparse[(((r * 32) + i) * 10000) + id] = (1.00000000000000000e+00f) * gammaDistPhilox432(&localStream, (4.00000000000000000e+00f));
                     }
                 }
                 idx += 10000;
             }
         }
-        clrngLfsr113CopyOverStreamsToGlobal(1, &d_rng[0], &localStream);
     }
     
     
